@@ -3,407 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>blood.ai — Interactive Demo</title>
+<title>blood.ai — 혈액검사 기반 맞춤 건강 추천</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
-
 :root {
-  --teal:      #00897B;
-  --teal-dark: #00695C;
-  --teal-lite: #E0F2F1;
-  --teal-pale: #F0FDFA;
-  --mint:      #02C39A;
-  --navy:      #1A237E;
-  --white:     #FFFFFF;
-  --black:     #212121;
-  --gray:      #546E7A;
-  --gray-lt:   #ECEFF1;
-  --red:       #C62828;
-  --red-lt:    #FFEBEE;
-  --amber:     #E65100;
-  --amber-lt:  #FFF8E1;
-  --green:     #1B5E20;
-  --green-lt:  #E8F5E9;
-  --bg:        #F0F4F5;
+  --teal:#00897B; --teal-dark:#00695C; --teal-pale:#F0FDFA; --teal-lite:#E0F2F1;
+  --black:#212121; --gray:#546E7A; --gray-lt:#ECEFF1; --bg:#F0F4F5;
+  --red-lt:#FFEBEE; --amber-lt:#FFF8E1; --green-lt:#E8F5E9;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-  background: var(--bg);
-  color: var(--black);
-  font-size: 14px;
-  line-height: 1.7;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--black);font-size:14px;line-height:1.7;}
 
-/* ── 헤더 ── */
-header {
-  background: linear-gradient(135deg, var(--teal-dark) 0%, #004D40 100%);
-  color: white;
-  padding: 0;
-}
-.header-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 28px 32px 24px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-}
-.logo { display: flex; align-items: center; gap: 14px; }
-.logo-icon {
-  width: 48px; height: 48px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-}
-.logo-text h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
-.logo-text p  { font-size: 12px; opacity: 0.75; margin-top: 2px; }
-.badge {
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
+/* 헤더 */
+header{background:linear-gradient(135deg,#00695C 0%,#004D40 100%);color:white;}
+.header-inner{max-width:1100px;margin:0 auto;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.logo{display:flex;align-items:center;gap:14px;}
+.logo-icon{width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.logo h1{font-size:24px;font-weight:900;}
+.logo p{font-size:11px;opacity:.75;margin-top:1px;}
+.badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;}
 
-/* ── 사용자 탭 ── */
-.user-tabs {
-  max-width: 1100px;
-  margin: 28px auto 0;
-  padding: 0 32px;
-  display: flex;
-  gap: 12px;
-}
-.user-tab {
-  background: white;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  padding: 14px 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all .2s;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-}
-.user-tab.active {
-  border-color: var(--teal);
-  background: var(--teal-pale);
-}
-.user-tab:hover:not(.active) { border-color: #B2DFDB; }
-.avatar {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-}
-.avatar.male   { background: linear-gradient(135deg, #1565C0, #0D47A1); }
-.avatar.female { background: linear-gradient(135deg, #AD1457, #880E4F); }
-.user-info small { display: block; color: var(--gray); font-size: 11px; }
-.user-info strong { font-size: 14px; font-weight: 700; }
+/* 탭 */
+.tabs-wrap{max-width:1100px;margin:24px auto 0;padding:0 32px;display:flex;gap:10px;flex-wrap:wrap;}
+.tab{background:white;border:2px solid transparent;border-radius:12px;padding:12px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s;box-shadow:0 1px 6px rgba(0,0,0,.07);}
+.tab.active{border-color:var(--teal);background:var(--teal-pale);}
+.tab:hover:not(.active){border-color:#B2DFDB;}
+.tab.custom-tab{border-style:dashed;border-color:#B2DFDB;}
+.tab.custom-tab.active{border-style:solid;}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white;flex-shrink:0;}
+.av-m{background:linear-gradient(135deg,#1565C0,#0D47A1);}
+.av-f{background:linear-gradient(135deg,#AD1457,#880E4F);}
+.av-u{background:linear-gradient(135deg,var(--teal),var(--teal-dark));}
+.tab-info small{display:block;color:var(--gray);font-size:11px;}
+.tab-info strong{font-size:13px;font-weight:700;}
 
-/* ── 레이아웃 ── */
-.main {
-  max-width: 1100px;
-  margin: 24px auto 48px;
-  padding: 0 32px;
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 20px;
-}
+/* 메인 그리드 */
+.main{max-width:1100px;margin:20px auto 48px;padding:0 32px;display:grid;grid-template-columns:340px 1fr;gap:20px;}
+.col-l,.col-r{display:flex;flex-direction:column;gap:20px;}
 
-/* ── 카드 공통 ── */
-.card {
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  overflow: hidden;
-}
-.card-header {
-  background: var(--teal-dark);
-  color: white;
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.card-header .icon { font-size: 18px; }
-.card-header h3  { font-size: 15px; font-weight: 700; }
-.card-header .sub { font-size: 11px; opacity: 0.75; margin-left: auto; }
-.card-body { padding: 20px; }
+/* 카드 */
+.card{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;}
+.card-header{background:var(--teal-dark);color:white;padding:13px 20px;display:flex;align-items:center;gap:10px;}
+.card-header .icon{font-size:17px;}
+.card-header h3{font-size:14px;font-weight:700;}
+.card-header .sub{font-size:11px;opacity:.75;margin-left:auto;}
+.card-body{padding:20px;}
 
-/* ── 프로필 카드 ── */
-.profile-stat {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--gray-lt);
-}
-.profile-stat:last-child { border-bottom: none; }
-.profile-stat .label { color: var(--gray); font-size: 12px; }
-.profile-stat .value { font-weight: 600; font-size: 13px; }
+/* 바이오마커 그리드 */
+.bm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.bm-card{border-radius:10px;padding:11px 13px;border:1px solid var(--gray-lt);position:relative;overflow:hidden;}
+.bm-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;}
+.bm-card.normal::before{background:#43A047;}.bm-card.watch::before{background:#FB8C00;}.bm-card.caution::before{background:#E53935;}
+.bm-name{font-size:11px;color:var(--gray);}
+.bm-value{font-size:21px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1.2;margin:3px 0;}
+.bm-unit{font-size:10px;color:var(--gray);}
+.bm-status{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-top:3px;}
+.bm-card.normal .bm-status{background:#E8F5E9;color:#2E7D32;}
+.bm-card.watch  .bm-status{background:#FFF3E0;color:#E65100;}
+.bm-card.caution .bm-status{background:#FFEBEE;color:#C62828;}
+.bm-trend{position:absolute;top:10px;right:10px;font-size:14px;}
 
-/* ── 안전 알림 ── */
-.alert-box {
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-top: 14px;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  font-size: 12px;
-  line-height: 1.6;
-}
-.alert-box.safe    { background: var(--green-lt); border: 1px solid #A5D6A7; }
-.alert-box.warning { background: var(--amber-lt); border: 1px solid #FFCC80; }
-.alert-box.danger  { background: var(--red-lt);   border: 1px solid #EF9A9A; }
-.alert-box .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-.alert-box strong { display: block; font-size: 12px; margin-bottom: 2px; }
+/* 알림박스 */
+.alert-box{border-radius:10px;padding:11px 13px;margin-top:12px;display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.6;}
+.alert-box.safe{background:var(--green-lt);border:1px solid #A5D6A7;}
+.alert-box.warning{background:var(--amber-lt);border:1px solid #FFCC80;}
+.alert-box.danger{background:var(--red-lt);border:1px solid #EF9A9A;}
 
-/* ── 바이오마커 그리드 ── */
-.biomarker-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 0;
-}
-.bm-card {
-  border-radius: 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--gray-lt);
-  position: relative;
-  overflow: hidden;
-}
-.bm-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 4px;
-}
-.bm-card.normal::before  { background: #43A047; }
-.bm-card.watch::before   { background: #FB8C00; }
-.bm-card.caution::before { background: #E53935; }
-.bm-name { font-size: 11px; color: var(--gray); }
-.bm-value {
-  font-size: 22px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  line-height: 1.2;
-  margin: 4px 0;
-}
-.bm-unit { font-size: 11px; color: var(--gray); }
-.bm-status {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-top: 4px;
-}
-.bm-card.normal  .bm-status { background: #E8F5E9; color: #2E7D32; }
-.bm-card.watch   .bm-status { background: #FFF3E0; color: #E65100; }
-.bm-card.caution .bm-status { background: #FFEBEE; color: #C62828; }
-.bm-trend {
-  position: absolute;
-  top: 12px; right: 12px;
-  font-size: 16px;
-}
+/* 차트 */
+.chart-wrap{position:relative;height:190px;margin-top:6px;}
 
-/* ── 차트 영역 ── */
-.chart-wrap { position: relative; height: 200px; margin-top: 8px; }
+/* 컨텍스트 슬라이더 */
+.ctx-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--gray-lt);}
+.ctx-row:last-of-type{border-bottom:none;}
+.ctx-label{font-size:12px;color:var(--gray);width:88px;flex-shrink:0;}
+.ctx-slider{flex:1;accent-color:var(--teal);}
+.ctx-val{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--teal-dark);width:34px;text-align:right;}
 
-/* ── 컨텍스트 슬라이더 ── */
-.ctx-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--gray-lt);
-}
-.ctx-row:last-child { border-bottom: none; }
-.ctx-label { font-size: 12px; color: var(--gray); width: 90px; flex-shrink: 0; }
-.ctx-slider { flex: 1; accent-color: var(--teal); height: 4px; }
-.ctx-val {
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  color: var(--teal-dark);
-  width: 32px;
-  text-align: right;
-}
+/* 추천 결과 */
+.rec-list{display:flex;flex-direction:column;gap:12px;}
+.rec-item{border:1px solid var(--gray-lt);border-radius:12px;padding:15px;position:relative;transition:box-shadow .2s;}
+.rec-item:hover{box-shadow:0 4px 16px rgba(0,137,123,.12);border-color:#B2DFDB;}
+.rec-rank{position:absolute;top:-10px;left:14px;background:var(--teal);color:white;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;}
+.rec-top{display:flex;align-items:flex-start;gap:11px;margin-top:4px;}
+.rec-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.rec-icon.supplement{background:#E8EAF6;}.rec-icon.food{background:#E8F5E9;}.rec-icon.routine{background:#FFF3E0;}
+.rec-name{font-weight:700;font-size:14px;}
+.rec-type{font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;display:inline-block;margin-top:2px;}
+.rec-type.supplement{background:#E8EAF6;color:#3949AB;}.rec-type.food{background:#E8F5E9;color:#2E7D32;}.rec-type.routine{background:#FFF3E0;color:#E65100;}
+.rec-reason{font-size:12px;color:var(--gray);margin-top:7px;line-height:1.6;}
+.score-bars{display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;margin-top:9px;}
+.score-row{display:flex;align-items:center;gap:7px;}
+.score-label{font-size:10px;color:var(--gray);width:50px;flex-shrink:0;}
+.score-track{flex:1;height:5px;background:var(--gray-lt);border-radius:3px;overflow:hidden;}
+.score-fill{height:100%;border-radius:3px;background:var(--teal);transition:width .6s ease;}
+.score-num{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--teal-dark);font-weight:600;width:24px;}
+.final-score{position:absolute;top:13px;right:14px;display:flex;flex-direction:column;align-items:center;}
+.final-score .num{font-size:19px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--teal-dark);line-height:1;}
+.final-score .lbl{font-size:9px;color:var(--gray);margin-top:1px;}
 
-/* ── 추천 결과 ── */
-.rec-list { display: flex; flex-direction: column; gap: 12px; }
-.rec-item {
-  border: 1px solid var(--gray-lt);
-  border-radius: 12px;
-  padding: 16px;
-  position: relative;
-  transition: box-shadow .2s;
-}
-.rec-item:hover { box-shadow: 0 4px 16px rgba(0,137,123,.12); border-color: #B2DFDB; }
-.rec-rank {
-  position: absolute;
-  top: -10px; left: 16px;
-  background: var(--teal);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 10px;
-  border-radius: 10px;
-}
-.rec-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: 4px;
-}
-.rec-icon {
-  width: 40px; height: 40px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-.rec-icon.supplement { background: #E8EAF6; }
-.rec-icon.food       { background: #E8F5E9; }
-.rec-icon.routine    { background: #FFF3E0; }
-.rec-name { font-weight: 700; font-size: 14px; }
-.rec-type {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 8px;
-  display: inline-block;
-  margin-top: 3px;
-}
-.rec-type.supplement { background: #E8EAF6; color: #3949AB; }
-.rec-type.food       { background: #E8F5E9; color: #2E7D32; }
-.rec-type.routine    { background: #FFF3E0; color: #E65100; }
-.rec-reason { font-size: 12px; color: var(--gray); margin-top: 8px; line-height: 1.6; }
+/* 알고리즘 레이어 */
+.layers{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--gray-lt);}
+.layer-item{flex:1;padding:9px 6px;text-align:center;border-right:1px solid var(--gray-lt);font-size:10px;line-height:1.4;}
+.layer-item:last-child{border-right:none;}
+.layer-item .l-num{display:block;font-size:10px;font-weight:700;color:var(--teal);margin-bottom:2px;}
+.layer-item .l-name{font-weight:600;font-size:10px;}
+.layer-item .l-pct{display:block;font-size:10px;color:var(--gray);margin-top:1px;}
 
-/* ── 점수 바 ── */
-.score-bars {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 16px;
-  margin-top: 10px;
-}
-.score-row { display: flex; align-items: center; gap: 8px; }
-.score-label { font-size: 10px; color: var(--gray); width: 52px; flex-shrink: 0; }
-.score-track { flex: 1; height: 6px; background: var(--gray-lt); border-radius: 3px; overflow: hidden; }
-.score-fill  { height: 100%; border-radius: 3px; background: var(--teal); transition: width .6s ease; }
-.score-num   { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--teal-dark); font-weight: 600; width: 28px; }
+/* 버튼 */
+.btn{width:100%;padding:11px;background:var(--teal);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;letter-spacing:.3px;margin-top:12px;}
+.btn:hover{background:var(--teal-dark);}
+.btn:disabled{background:#B2DFDB;cursor:not-allowed;}
+.btn-outline{background:white;color:var(--teal);border:2px solid var(--teal);}
+.btn-outline:hover{background:var(--teal-pale);}
 
-/* ── 최종 스코어 ── */
-.final-score {
-  position: absolute;
-  top: 14px; right: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.final-score .num {
-  font-size: 20px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--teal-dark);
-  line-height: 1;
-}
-.final-score .lbl { font-size: 9px; color: var(--gray); margin-top: 2px; }
+/* ── 입력 폼 ── */
+.input-page{display:none;}
+.input-page.active{display:block;}
+.demo-page{display:none;}
+.demo-page.active{display:block;}
 
-/* ── 알고리즘 레이어 설명 ── */
-.layers {
-  display: flex;
-  gap: 0;
-  margin-top: 16px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--gray-lt);
-}
-.layer-item {
-  flex: 1;
-  padding: 10px 8px;
-  text-align: center;
-  border-right: 1px solid var(--gray-lt);
-  font-size: 11px;
-  line-height: 1.4;
-}
-.layer-item:last-child { border-right: none; }
-.layer-item .l-num {
-  display: block;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--teal);
-  margin-bottom: 3px;
-}
-.layer-item .l-name { font-weight: 600; font-size: 11px; }
-.layer-item .l-pct {
-  display: block;
-  font-size: 10px;
-  color: var(--gray);
-  margin-top: 2px;
-}
+.form-section{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;margin-bottom:20px;}
+.form-section-header{background:var(--teal-dark);color:white;padding:13px 20px;display:flex;align-items:center;gap:10px;}
+.form-section-header .icon{font-size:17px;}
+.form-section-header h3{font-size:14px;font-weight:700;}
+.form-body{padding:20px;}
 
-/* ── 반응형 ── */
-@media (max-width: 800px) {
-  .main { grid-template-columns: 1fr; }
-  .header-inner { flex-direction: column; align-items: flex-start; }
-  .user-tabs { flex-direction: column; }
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:12px;font-weight:600;color:var(--gray);}
+.form-label span{font-size:10px;font-weight:400;color:#90A4AE;margin-left:4px;}
+.form-input{border:1px solid var(--gray-lt);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--teal);}
+.form-input.has-value{border-color:#B2DFDB;background:var(--teal-pale);}
+.form-hint{font-size:10px;color:#90A4AE;}
+
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.check-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--gray-lt);border-radius:8px;cursor:pointer;transition:all .2s;}
+.check-item:hover{border-color:#B2DFDB;background:var(--teal-pale);}
+.check-item input[type=checkbox]{accent-color:var(--teal);width:15px;height:15px;cursor:pointer;}
+.check-item.checked{border-color:var(--teal);background:var(--teal-pale);}
+.check-item label{font-size:13px;cursor:pointer;}
+
+.ctx-form-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--gray-lt);}
+.ctx-form-row:last-of-type{border-bottom:none;}
+.ctx-form-label{font-size:12px;width:100px;flex-shrink:0;}
+.ctx-form-label small{display:block;color:var(--gray);font-size:10px;}
+.ctx-form-slider{flex:1;accent-color:var(--teal);}
+.ctx-form-val{font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--teal-dark);width:36px;text-align:right;}
+
+.result-header{text-align:center;padding:24px 0 16px;}
+.result-header h2{font-size:20px;font-weight:700;color:var(--teal-dark);}
+.result-header p{font-size:13px;color:var(--gray);margin-top:4px;}
+
+.safety-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+
+.empty-state{text-align:center;padding:48px 24px;color:var(--gray);}
+.empty-state .e-icon{font-size:48px;margin-bottom:12px;}
+.empty-state p{font-size:14px;}
+
+.result-section{display:none;}
+.result-section.show{display:block;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeIn .3s ease;}
+
+@media(max-width:800px){
+  .main{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr 1fr;}
+  .header-inner{flex-direction:column;align-items:flex-start;}
 }
-
-/* ── 탭 전환 애니메이션 ── */
-.fade-in { animation: fadeIn .3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-.run-btn {
-  width: 100%;
-  margin-top: 14px;
-  padding: 11px;
-  background: var(--teal);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background .2s;
-  letter-spacing: 0.3px;
-}
-.run-btn:hover { background: var(--teal-dark); }
-
-.section-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--gray);
-  margin-bottom: 12px;
-}
-
-.col-left  { display: flex; flex-direction: column; gap: 20px; }
-.col-right { display: flex; flex-direction: column; gap: 20px; }
 </style>
 </head>
 <body>
 
-<!-- ── 헤더 ── -->
 <header>
   <div class="header-inner">
     <div class="logo">
       <div class="logo-icon">🩸</div>
-      <div class="logo-text">
+      <div>
         <h1>blood.ai</h1>
         <p>혈액검사 기반 개인 맞춤 건강 추천 엔진 · KAIST Business Analytics and Data Mining</p>
       </div>
@@ -412,377 +190,712 @@ header {
   </div>
 </header>
 
-<!-- ── 사용자 탭 ── -->
-<div class="user-tabs">
-  <div class="user-tab active" onclick="switchUser('user_001')" id="tab_user_001">
-    <div class="avatar male">김</div>
-    <div class="user-info">
-      <strong>김건강 (user_001)</strong>
-      <small>1985년생 · 남성 · 82kg · 고혈압약 복용</small>
+<div class="tabs-wrap">
+  <div class="tab active" onclick="switchTab('user_001')" id="tab_user_001">
+    <div class="avatar av-m">김</div>
+    <div class="tab-info">
+      <strong>김건강 (데모)</strong>
+      <small>1985년생 · 남성 · 고혈압약 복용</small>
     </div>
   </div>
-  <div class="user-tab" onclick="switchUser('user_002')" id="tab_user_002">
-    <div class="avatar female">이</div>
-    <div class="user-info">
-      <strong>이웰니스 (user_002)</strong>
-      <small>1992년생 · 여성 · 58kg · 새우·갑각류 알레르기</small>
+  <div class="tab" onclick="switchTab('user_002')" id="tab_user_002">
+    <div class="avatar av-f">이</div>
+    <div class="tab-info">
+      <strong>이웰니스 (데모)</strong>
+      <small>1992년생 · 여성 · 빈혈 관리 중</small>
+    </div>
+  </div>
+  <div class="tab custom-tab" onclick="switchTab('custom')" id="tab_custom">
+    <div class="avatar av-u">✏</div>
+    <div class="tab-info">
+      <strong>내 수치로 분석하기</strong>
+      <small>혈액검사 결과를 직접 입력</small>
     </div>
   </div>
 </div>
 
-<!-- ── 메인 그리드 ── -->
+<!-- ── 데모 페이지 ── -->
+<div class="demo-page active" id="demo-page">
 <div class="main">
-
-  <!-- 왼쪽 컬럼 -->
-  <div class="col-left">
-
-    <!-- 혈액검사 수치 카드 -->
-    <div class="card fade-in" id="bm-card">
-      <div class="card-header">
-        <span class="icon">🔬</span>
-        <h3>최신 혈액검사 결과</h3>
-        <span class="sub" id="bm-date"></span>
-      </div>
-      <div class="card-body">
-        <div class="biomarker-grid" id="bm-grid"></div>
-        <div id="alert-area"></div>
-      </div>
-    </div>
-
-    <!-- 트렌드 차트 -->
-    <div class="card fade-in" id="trend-card">
-      <div class="card-header">
-        <span class="icon">📈</span>
-        <h3>검사 수치 추이</h3>
-        <span class="sub" id="trend-count"></span>
-      </div>
-      <div class="card-body">
-        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
-      </div>
-    </div>
-
-    <!-- 생활 맥락 슬라이더 -->
+  <div class="col-l">
     <div class="card fade-in">
-      <div class="card-header">
-        <span class="icon">🌙</span>
-        <h3>오늘의 생활 맥락</h3>
-        <span class="sub">Context Vector</span>
-      </div>
+      <div class="card-header"><span class="icon">🔬</span><h3>최신 혈액검사 결과</h3><span class="sub" id="bm-date"></span></div>
+      <div class="card-body"><div class="bm-grid" id="bm-grid"></div><div id="alert-area"></div></div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-header"><span class="icon">📈</span><h3>검사 수치 추이</h3><span class="sub" id="trend-count"></span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-header"><span class="icon">🌙</span><h3>오늘의 생활 맥락</h3><span class="sub">Context Vector</span></div>
       <div class="card-body" id="ctx-body"></div>
     </div>
-
   </div>
-
-  <!-- 오른쪽 컬럼 -->
-  <div class="col-right">
-
-    <!-- 알고리즘 레이어 -->
+  <div class="col-r">
     <div class="card fade-in">
-      <div class="card-header">
-        <span class="icon">⚙️</span>
-        <h3>5-Layer Hybrid Algorithm</h3>
-      </div>
+      <div class="card-header"><span class="icon">⚙️</span><h3>5-Layer Hybrid Algorithm</h3></div>
       <div class="card-body" style="padding-bottom:16px">
         <div class="layers">
-          <div class="layer-item" style="background:#FFEBEE">
-            <span class="l-num">L1</span>
-            <span class="l-name">Safety<br>Guardrail</span>
-            <span class="l-pct">우선 차단</span>
-          </div>
-          <div class="layer-item" style="background:#FFF3E0">
-            <span class="l-num">L2</span>
-            <span class="l-name">Biomarker<br>Scoring</span>
-            <span class="l-pct">35%</span>
-          </div>
-          <div class="layer-item" style="background:#E8F5E9">
-            <span class="l-num">L3</span>
-            <span class="l-name">Content<br>Matching</span>
-            <span class="l-pct">25%</span>
-          </div>
-          <div class="layer-item" style="background:#E3F2FD">
-            <span class="l-num">L4</span>
-            <span class="l-name">Contextual<br>Scoring</span>
-            <span class="l-pct">20%</span>
-          </div>
-          <div class="layer-item" style="background:#F3E5F5">
-            <span class="l-num">L5</span>
-            <span class="l-name">MMR<br>Reranker</span>
-            <span class="l-pct">15%</span>
-          </div>
+          <div class="layer-item" style="background:#FFEBEE"><span class="l-num">L1</span><span class="l-name">Safety<br>Guardrail</span><span class="l-pct">우선차단</span></div>
+          <div class="layer-item" style="background:#FFF3E0"><span class="l-num">L2</span><span class="l-name">Biomarker<br>Scoring</span><span class="l-pct">35%</span></div>
+          <div class="layer-item" style="background:#E8F5E9"><span class="l-num">L3</span><span class="l-name">Content<br>Matching</span><span class="l-pct">25%</span></div>
+          <div class="layer-item" style="background:#E3F2FD"><span class="l-num">L4</span><span class="l-name">Contextual<br>Scoring</span><span class="l-pct">20%</span></div>
+          <div class="layer-item" style="background:#F3E5F5"><span class="l-num">L5</span><span class="l-name">MMR<br>Reranker</span><span class="l-pct">15%</span></div>
         </div>
       </div>
     </div>
-
-    <!-- 추천 결과 -->
     <div class="card fade-in">
-      <div class="card-header">
-        <span class="icon">✨</span>
-        <h3>개인 맞춤 추천 결과</h3>
-        <span class="sub">Top-5 · MMR 다양성 보정</span>
-      </div>
-      <div class="card-body">
-        <div class="rec-list" id="rec-list"></div>
+      <div class="card-header"><span class="icon">✨</span><h3>개인 맞춤 추천 결과</h3><span class="sub">Top-5 · MMR 다양성 보정</span></div>
+      <div class="card-body"><div class="rec-list" id="rec-list"></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ── 직접 입력 페이지 ── -->
+<div class="input-page" id="input-page">
+<div style="max-width:1100px;margin:20px auto 48px;padding:0 32px;">
+
+  <!-- 혈액검사 수치 입력 -->
+  <div class="form-section">
+    <div class="form-section-header"><span class="icon">🔬</span><h3>혈액검사 수치 입력</h3></div>
+    <div class="form-body">
+      <p style="font-size:12px;color:var(--gray);margin-bottom:16px">모르는 항목은 비워두세요. 입력한 항목만 분석에 반영됩니다.</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">LDL 콜레스테롤 <span>정상: 130 이하 mg/dL</span></label>
+          <input class="form-input" type="number" id="in_LDL" placeholder="예: 148" min="0" max="400" oninput="markInput(this)">
+          <span class="form-hint">낮을수록 좋음</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">HDL 콜레스테롤 <span>정상: 40 이상 mg/dL</span></label>
+          <input class="form-input" type="number" id="in_HDL" placeholder="예: 48" min="0" max="200" oninput="markInput(this)">
+          <span class="form-hint">높을수록 좋음</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">중성지방(TG) <span>정상: 150 이하 mg/dL</span></label>
+          <input class="form-input" type="number" id="in_TG" placeholder="예: 158" min="0" max="1000" oninput="markInput(this)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">공복혈당 <span>정상: 100 이하 mg/dL</span></label>
+          <input class="form-input" type="number" id="in_GLUCOSE" placeholder="예: 95" min="0" max="500" oninput="markInput(this)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">비타민D <span>정상: 30 이상 ng/mL</span></label>
+          <input class="form-input" type="number" id="in_VITD" placeholder="예: 18" min="0" max="150" oninput="markInput(this)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">헤모글로빈(HB) <span>남 13~17 / 여 12~16 g/dL</span></label>
+          <input class="form-input" type="number" id="in_HB" placeholder="예: 14.5" min="0" max="25" step="0.1" oninput="markInput(this)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">페리틴 <span>정상: 12 이상 ng/mL</span></label>
+          <input class="form-input" type="number" id="in_FERRITIN" placeholder="예: 35" min="0" max="1000" oninput="markInput(this)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ALT(간수치) <span>정상: 40 이하 IU/L</span></label>
+          <input class="form-input" type="number" id="in_ALT" placeholder="예: 29" min="0" max="500" oninput="markInput(this)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">크레아티닌 <span>정상: 0.6~1.2 mg/dL</span></label>
+          <input class="form-input" type="number" id="in_CREATININE" placeholder="예: 0.9" min="0" max="20" step="0.1" oninput="markInput(this)">
+        </div>
       </div>
     </div>
-
   </div>
+
+  <!-- 기저질환/복약 -->
+  <div class="form-section">
+    <div class="form-section-header"><span class="icon">💊</span><h3>기저질환 / 복약 정보</h3></div>
+    <div class="form-body">
+      <p style="font-size:12px;color:var(--gray);margin-bottom:14px">해당하는 항목을 모두 선택해주세요. 안전 필터 적용에 사용됩니다.</p>
+      <div class="check-grid">
+        <div class="check-item" onclick="toggleCheck(this,'고혈압')">
+          <input type="checkbox" id="cond_고혈압"><label for="cond_고혈압">🫀 고혈압 / 혈압약 복용 중</label>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this,'당뇨')">
+          <input type="checkbox" id="cond_당뇨"><label for="cond_당뇨">🍬 당뇨 / 혈당약 복용 중</label>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this,'항응고제복용')">
+          <input type="checkbox" id="cond_항응고제복용"><label for="cond_항응고제복용">🩺 항응고제 복용 (와파린 등)</label>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this,'신장질환')">
+          <input type="checkbox" id="cond_신장질환"><label for="cond_신장질환">🫘 신장질환 (만성신부전 등)</label>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this,'간질환')">
+          <input type="checkbox" id="cond_간질환"><label for="cond_간질환">🟤 간질환 (간경화, 지방간 등)</label>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this,'임신수유')">
+          <input type="checkbox" id="cond_임신수유"><label for="cond_임신수유">🤱 임신 중 / 수유 중</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 생활 맥락 -->
+  <div class="form-section">
+    <div class="form-section-header"><span class="icon">🌙</span><h3>생활 맥락</h3></div>
+    <div class="form-body">
+      <div class="ctx-form-row">
+        <div class="ctx-form-label">수면 시간<small>어제 기준</small></div>
+        <input type="range" class="ctx-form-slider" id="ctx_sleep" min="3" max="10" step="0.5" value="7" oninput="updateCtx('sleep',this.value)">
+        <span class="ctx-form-val" id="ctxv_sleep">7h</span>
+      </div>
+      <div class="ctx-form-row">
+        <div class="ctx-form-label">스트레스<small>최근 일주일</small></div>
+        <input type="range" class="ctx-form-slider" id="ctx_stress" min="1" max="5" step="1" value="3" oninput="updateCtx('stress',this.value)">
+        <span class="ctx-form-val" id="ctxv_stress">3/5</span>
+      </div>
+      <div class="ctx-form-row">
+        <div class="ctx-form-label">아침 결식<small>주당 빈도</small></div>
+        <input type="range" class="ctx-form-slider" id="ctx_breakfast" min="0" max="7" step="1" value="2" oninput="updateCtx('breakfast',this.value)">
+        <span class="ctx-form-val" id="ctxv_breakfast">2일</span>
+      </div>
+      <div class="ctx-form-row">
+        <div class="ctx-form-label">야식 빈도<small>주당 횟수</small></div>
+        <input type="range" class="ctx-form-slider" id="ctx_latemeal" min="0" max="7" step="1" value="1" oninput="updateCtx('latemeal',this.value)">
+        <span class="ctx-form-val" id="ctxv_latemeal">1회</span>
+      </div>
+      <div class="ctx-form-row">
+        <div class="ctx-form-label">운동 시간<small>어제 기준</small></div>
+        <input type="range" class="ctx-form-slider" id="ctx_exercise" min="0" max="90" step="5" value="20" oninput="updateCtx('exercise',this.value)">
+        <span class="ctx-form-val" id="ctxv_exercise">20분</span>
+      </div>
+      <button class="btn" onclick="runAnalysis()">🔬 분석 시작</button>
+    </div>
+  </div>
+
+  <!-- 결과 영역 -->
+  <div class="result-section" id="result-section">
+    <div class="result-header">
+      <h2 id="result-title">분석 결과</h2>
+      <p id="result-sub"></p>
+    </div>
+
+    <!-- 내 수치 요약 -->
+    <div class="form-section">
+      <div class="form-section-header"><span class="icon">🔬</span><h3>입력된 혈액검사 수치</h3></div>
+      <div class="form-body"><div class="bm-grid" id="my-bm-grid"></div><div id="my-alert-area"></div></div>
+    </div>
+
+    <!-- 추천 결과 -->
+    <div class="form-section">
+      <div class="form-section-header"><span class="icon">✨</span><h3>개인 맞춤 추천 결과</h3><span style="margin-left:auto;font-size:11px;opacity:.8">Top-5 · MMR 다양성 보정</span></div>
+      <div class="form-body"><div class="rec-list" id="my-rec-list"></div></div>
+    </div>
+
+    <button class="btn btn-outline" onclick="resetForm()" style="max-width:300px;margin:0 auto;display:block">다시 입력하기</button>
+  </div>
+
+</div>
 </div>
 
 <script>
-// ─── 데이터 ───────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// 마스터 데이터
+// ═══════════════════════════════════════════════════════
+const SUPPLEMENTS = [
+  { id:1, name:'비타민D3 2000IU',         icon:'💊', target:'VITD',            area:'vitd',    risk:[], price:'low',    evidence:'A',
+    reason: '비타민D 부족 시 비타민D3 보충을 권장합니다.' },
+  { id:2, name:'오메가3 (EPA/DHA)',        icon:'🐠', target:'LDL',             area:'lipid',   risk:['항응고제복용'], price:'mid', evidence:'A',
+    reason: 'LDL 콜레스테롤 관리를 위해 오메가3 보충을 권장합니다.' },
+  { id:3, name:'마그네슘 300mg',           icon:'💊', target:'GLUCOSE_FASTING', area:'glucose', risk:['신장질환'], price:'low', evidence:'B',
+    reason: '혈당 조절을 보조하는 마그네슘 보충을 권장합니다.' },
+  { id:4, name:'철분 (ferrous sulfate)',   icon:'💊', target:'HB',              area:'iron',    risk:[], price:'low',    evidence:'A',
+    reason: '헤모글로빈/페리틴이 낮아 철분 보충을 권장합니다.' },
+  { id:5, name:'엽산 400μg',              icon:'💊', target:'HB',              area:'iron',    risk:[], price:'low',    evidence:'A',
+    reason: '철분 흡수를 돕는 엽산 보충을 권장합니다.' },
+  { id:6, name:'비타민C 500mg',            icon:'🍋', target:'HB',              area:'iron',    risk:[], price:'low',    evidence:'A',
+    reason: '철분 흡수율 향상을 위해 비타민C를 함께 복용하는 것을 권장합니다.' },
+  { id:7, name:'코엔자임Q10 100mg',        icon:'💊', target:'LDL',             area:'lipid',   risk:['항응고제복용'], price:'mid', evidence:'B',
+    reason: 'LDL 관리와 세포 에너지 생산에 도움이 되는 코엔자임Q10을 권장합니다.' },
+  { id:8, name:'베르베린 500mg',           icon:'💊', target:'GLUCOSE_FASTING', area:'glucose', risk:['당뇨','신장질환','임신수유'], price:'mid', evidence:'B',
+    reason: '혈당 개선에 효과적인 베르베린 보충을 권장합니다.' },
+  { id:9, name:'오메가3 저용량 500mg',     icon:'🐠', target:'TG',              area:'lipid',   risk:[], price:'low',    evidence:'A',
+    reason: '중성지방 관리를 위해 저용량 오메가3 보충을 권장합니다.' },
+];
 
-const USERS = {
+const FOODS = [
+  { id:1,  name:'고등어구이',    icon:'🐟', fiber:0,   iron:1.1, vitd:8.9, satFat:3.1, sodium:150,  reason:'비타민D와 오메가3가 풍부한 등푸른생선' },
+  { id:2,  name:'연어스테이크',  icon:'🐟', fiber:0,   iron:0.4, vitd:16,  satFat:3.2, sodium:80,   reason:'비타민D(16μg)와 오메가3가 풍부' },
+  { id:3,  name:'현미밥',        icon:'🍚', fiber:2.8, iron:0.7, vitd:0,   satFat:0.4, sodium:12,   reason:'식이섬유가 풍부해 혈당·콜레스테롤 관리에 도움' },
+  { id:4,  name:'시금치나물',    icon:'🥬', fiber:1.5, iron:2.4, vitd:0,   satFat:0.1, sodium:180,  reason:'철분(2.4mg) 풍부, 빈혈 관리에 효과적' },
+  { id:5,  name:'두부조림',      icon:'🍱', fiber:0.5, iron:1.8, vitd:0,   satFat:0.5, sodium:320,  reason:'식물성 단백질과 철분이 풍부한 두부' },
+  { id:6,  name:'아몬드 한줌',   icon:'🥜', fiber:3.5, iron:1.1, vitd:0,   satFat:1.3, sodium:1,    reason:'식이섬유와 불포화지방이 풍부해 LDL 관리에 도움' },
+  { id:7,  name:'삶은 계란',     icon:'🥚', fiber:0,   iron:1.2, vitd:1.1, satFat:1.6, sodium:71,   reason:'단백질과 미량 비타민D 함유' },
+  { id:8,  name:'브로콜리볶음',  icon:'🥦', fiber:2.6, iron:0.7, vitd:0,   satFat:0.1, sodium:30,   reason:'식이섬유와 항산화 성분이 풍부' },
+  { id:9,  name:'렌틸콩수프',    icon:'🫘', fiber:8.0, iron:3.3, vitd:0,   satFat:0.1, sodium:280,  reason:'식이섬유(8g)와 철분(3.3mg)이 매우 풍부' },
+  { id:10, name:'잡곡밥',        icon:'🍚', fiber:3.5, iron:1.0, vitd:0,   satFat:0.5, sodium:10,   reason:'GI가 낮아 혈당 관리에 유리한 잡곡밥' },
+  { id:11, name:'닭가슴살',      icon:'🍗', fiber:0,   iron:1.0, vitd:0.1, satFat:1.0, sodium:74,   reason:'저지방 고단백으로 체중·콜레스테롤 관리에 좋음' },
+  { id:12, name:'아보카도',      icon:'🥑', fiber:5.1, iron:0.5, vitd:0,   satFat:1.8, sodium:7,    reason:'식이섬유와 불포화지방산이 풍부' },
+];
+
+const BM_META = {
+  LDL:        { name:'LDL 콜레스테롤', unit:'mg/dL', refHigh:130, status: v => v>160?'caution':v>130?'watch':'normal' },
+  HDL:        { name:'HDL 콜레스테롤', unit:'mg/dL', refLow:40,   status: v => v<35?'caution':v<40?'watch':'normal' },
+  TG:         { name:'중성지방',        unit:'mg/dL', refHigh:150, status: v => v>200?'caution':v>150?'watch':'normal' },
+  GLUCOSE:    { name:'공복혈당',        unit:'mg/dL', refHigh:100, status: v => v>=126?'caution':v>100?'watch':'normal' },
+  VITD:       { name:'비타민D',         unit:'ng/mL', refLow:30,   status: v => v<10?'caution':v<30?'watch':'normal' },
+  HB:         { name:'헤모글로빈',      unit:'g/dL',  refLow:12,   status: v => v<7?'caution':v<12?'watch':'normal' },
+  FERRITIN:   { name:'페리틴',          unit:'ng/mL', refLow:12,   status: v => v<12?'watch':'normal' },
+  ALT:        { name:'ALT 간수치',      unit:'IU/L',  refHigh:40,  status: v => v>120?'caution':v>40?'watch':'normal' },
+  CREATININE: { name:'크레아티닌',      unit:'mg/dL', refHigh:1.2, status: v => v>1.5?'caution':v>1.2?'watch':'normal' },
+};
+const ST_LABEL = { normal:'정상', watch:'경계', caution:'주의' };
+
+// ═══════════════════════════════════════════════════════
+// 데모 데이터
+// ═══════════════════════════════════════════════════════
+const DEMO_USERS = {
   user_001: {
-    name: '김건강', sex: 'male',
-    conditions: ['고혈압 (암로디핀 복용 중'],
-    goals: ['콜레스테롤관리', '혈당관리', '비타민D'],
-    tests: [
-      { date: '2025-12-10', lab: '세브란스 건강검진',
-        markers: { LDL: 162, HDL: 42, TG: 185, GLUCOSE: 114, VITD: 12.5, AST: 38, ALT: 32, HB: 14.2 } },
-      { date: '2026-03-15', lab: '세브란스 건강검진',
-        markers: { LDL: 155, HDL: 45, TG: 170, GLUCOSE: 110, VITD: 15.0, HB: 14.5 } },
-      { date: '2026-06-01', lab: '강남 건강검진클리닉',
-        markers: { LDL: 148, HDL: 48, TG: 158, GLUCOSE: 108, VITD: 18.0, AST: 35, ALT: 29, HB: 14.8, CREATININE: 0.9 } },
+    tests:[
+      {date:'2025-12-10',lab:'세브란스 건강검진',markers:{LDL:162,HDL:42,TG:185,GLUCOSE:114,VITD:12.5,ALT:32,HB:14.2}},
+      {date:'2026-03-15',lab:'세브란스 건강검진',markers:{LDL:155,HDL:45,TG:170,GLUCOSE:110,VITD:15.0,HB:14.5}},
+      {date:'2026-06-01',lab:'강남 건강검진클리닉',markers:{LDL:148,HDL:48,TG:158,GLUCOSE:108,VITD:18.0,ALT:29,HB:14.8,CREATININE:0.9}},
     ],
-    latestIdx: 2,
-    contextDefaults: { sleep: 5.5, stress: 4, skipBreakfast: 1, lateMeal: 0.6, exercise: 0 },
-    safetyAlert: { type: 'warning', msg: '⚠️ 고혈압 약물 복용 중 — 오메가3 고용량 추천 제한 적용됨 (SR_003)' },
-    recommendations: [
-      { rank:1, type:'food', icon:'🐟', name:'고등어구이', reason:'LDL 콜레스테롤(148mg/dL) 관리에 오메가3가 풍부한 고등어구이를 권장합니다.',
-        scores:{ biomarker:.85, nutrition:.90, context:.72, preference:.75, adherence:.80 }, final:.82 },
-      { rank:2, type:'supplement', icon:'💊', name:'비타민D3 2000IU', reason:'비타민D(18ng/mL)가 부족 기준(30ng/mL) 미달 — 비타민D3 보충을 권장합니다.',
-        scores:{ biomarker:.82, nutrition:.68, context:.65, preference:.85, adherence:.70 }, final:.74 },
-      { rank:3, type:'food', icon:'🐟', name:'연어스테이크', reason:'비타민D(16μg/100g)와 오메가3가 풍부하여 콜레스테롤·비타민D 동시 관리에 효과적입니다.',
-        scores:{ biomarker:.80, nutrition:.88, context:.68, preference:.70, adherence:.75 }, final:.78 },
-      { rank:4, type:'routine', icon:'🏃', name:'야식 제한 & 아침식사 루틴', reason:'혈당(108mg/dL) 경계 + 야식 빈도 높음(60%) → 식단 패턴 개선을 권장합니다.',
-        scores:{ biomarker:.70, nutrition:.65, context:.75, preference:.80, adherence:.60 }, final:.70 },
-      { rank:5, type:'routine', icon:'😴', name:'수면 개선 루틴', reason:'수면 부족(5.5시간) — 취침 1시간 전 스크린 줄이기, 일정한 취침 시각 유지를 권장합니다.',
-        scores:{ biomarker:.40, nutrition:.30, context:.80, preference:.75, adherence:.65 }, final:.54 },
+    latestIdx:2,
+    ctx:{sleep:5.5,stress:4,skipBreakfast:1,lateMeal:0.6,exercise:0},
+    safetyAlert:{type:'warning',msg:'⚠️ 고혈압 약물 복용 중 — 오메가3 고용량 추천 제한 적용 (SR_003)'},
+    recs:[
+      {rank:1,type:'food',icon:'🐟',name:'고등어구이',reason:'LDL 콜레스테롤(148mg/dL) 관리에 오메가3가 풍부한 고등어구이를 권장합니다.',scores:{biomarker:.85,nutrition:.90,context:.72,preference:.75,adherence:.80},final:.82},
+      {rank:2,type:'supplement',icon:'💊',name:'비타민D3 2000IU',reason:'비타민D(18ng/mL)가 부족 기준(30ng/mL) 미달 — 비타민D3 보충을 권장합니다.',scores:{biomarker:.82,nutrition:.68,context:.65,preference:.85,adherence:.70},final:.74},
+      {rank:3,type:'food',icon:'🐟',name:'연어스테이크',reason:'비타민D(16μg/100g)와 오메가3가 풍부하여 콜레스테롤·비타민D 동시 관리에 효과적입니다.',scores:{biomarker:.80,nutrition:.88,context:.68,preference:.70,adherence:.75},final:.78},
+      {rank:4,type:'routine',icon:'🏃',name:'야식 제한 & 아침식사 루틴',reason:'혈당(108mg/dL) 경계 + 야식 빈도 높음 → 식단 패턴 개선을 권장합니다.',scores:{biomarker:.70,nutrition:.65,context:.75,preference:.80,adherence:.60},final:.70},
+      {rank:5,type:'routine',icon:'😴',name:'수면 개선 루틴',reason:'수면 부족(5.5시간) — 취침 1시간 전 스크린 줄이기, 일정한 취침 시각 유지를 권장합니다.',scores:{biomarker:.40,nutrition:.30,context:.80,preference:.75,adherence:.65},final:.54},
     ],
   },
   user_002: {
-    name: '이웰니스', sex: 'female',
-    conditions: ['새우·갑각류 알레르기'],
-    goals: ['빈혈철분', '피로관리'],
-    tests: [
-      { date: '2026-05-20', lab: '서울아산병원',
-        markers: { HB: 10.8, FERRITIN: 8.0, VITD: 9.0, GLUCOSE: 88, LDL: 102 } },
+    tests:[
+      {date:'2026-05-20',lab:'서울아산병원',markers:{HB:10.8,FERRITIN:8.0,VITD:9.0,GLUCOSE:88,LDL:102}},
     ],
-    latestIdx: 0,
-    contextDefaults: { sleep: 6.5, stress: 3, skipBreakfast: 1, lateMeal: 0, exercise: 20 },
-    safetyAlert: { type: 'danger', msg: '🚨 비타민D 9ng/mL — 심각한 결핍 수준. 고용량 보충 전 의료진 상담 권고' },
-    recommendations: [
-      { rank:1, type:'supplement', icon:'💊', name:'철분 (ferrous sulfate) 18mg', reason:'헤모글로빈(10.8g/dL)과 페리틴(8ng/mL) 모두 낮아 철분 보충이 시급합니다.',
-        scores:{ biomarker:.90, nutrition:.85, context:.65, preference:.85, adherence:.75 }, final:.83 },
-      { rank:2, type:'supplement', icon:'💊', name:'비타민D3 (고용량)', reason:'비타민D(9ng/mL) 심각 결핍 — 2000~4000IU 보충을 권장하며 의료진 상담 병행을 권고합니다.',
-        scores:{ biomarker:.92, nutrition:.78, context:.70, preference:.80, adherence:.72 }, final:.82 },
-      { rank:3, type:'food', icon:'🥬', name:'시금치나물', reason:'철분(2.4mg/70g)이 풍부한 시금치나물을 매일 섭취하면 철분 흡수에 도움이 됩니다.',
-        scores:{ biomarker:.75, nutrition:.82, context:.62, preference:.70, adherence:.80 }, final:.74 },
-      { rank:4, type:'supplement', icon:'💊', name:'비타민C 500mg', reason:'비타민C는 비헴철(식물성 철분)의 흡수율을 최대 3배 높여줍니다. 철분과 함께 복용하세요.',
-        scores:{ biomarker:.70, nutrition:.75, context:.60, preference:.75, adherence:.80 }, final:.71 },
-      { rank:5, type:'food', icon:'🐟', name:'고등어구이', reason:'비타민D가 풍부한 등푸른생선으로 비타민D 결핍 개선에 기여합니다.',
-        scores:{ biomarker:.65, nutrition:.78, context:.60, preference:.68, adherence:.72 }, final:.67 },
+    latestIdx:0,
+    ctx:{sleep:6.5,stress:3,skipBreakfast:1,lateMeal:0,exercise:20},
+    safetyAlert:{type:'danger',msg:'🚨 비타민D 9ng/mL — 심각한 결핍 수준. 고용량 보충 전 의료진 상담 권고'},
+    recs:[
+      {rank:1,type:'supplement',icon:'💊',name:'철분 (ferrous sulfate) 18mg',reason:'헤모글로빈(10.8g/dL)과 페리틴(8ng/mL) 모두 낮아 철분 보충이 시급합니다.',scores:{biomarker:.90,nutrition:.85,context:.65,preference:.85,adherence:.75},final:.83},
+      {rank:2,type:'supplement',icon:'💊',name:'비타민D3 (고용량)',reason:'비타민D(9ng/mL) 심각 결핍 — 고용량 보충 및 의료진 상담을 권고합니다.',scores:{biomarker:.92,nutrition:.78,context:.70,preference:.80,adherence:.72},final:.82},
+      {rank:3,type:'food',icon:'🥬',name:'시금치나물',reason:'철분(2.4mg/70g)이 풍부한 시금치나물을 매일 섭취하면 철분 흡수에 도움이 됩니다.',scores:{biomarker:.75,nutrition:.82,context:.62,preference:.70,adherence:.80},final:.74},
+      {rank:4,type:'supplement',icon:'🍋',name:'비타민C 500mg',reason:'비타민C는 비헴철(식물성 철분) 흡수율을 최대 3배 높여줍니다.',scores:{biomarker:.70,nutrition:.75,context:.60,preference:.75,adherence:.80},final:.71},
+      {rank:5,type:'food',icon:'🐟',name:'고등어구이',reason:'비타민D가 풍부한 등푸른생선으로 비타민D 결핍 개선에 기여합니다.',scores:{biomarker:.65,nutrition:.78,context:.60,preference:.68,adherence:.72},final:.67},
     ],
   },
 };
 
-const BM_META = {
-  LDL:        { name:'LDL 콜레스테롤', unit:'mg/dL', refLow:0,   refHigh:130, fmt: v => v>130?'caution':v>110?'watch':'normal' },
-  HDL:        { name:'HDL 콜레스테롤', unit:'mg/dL', refLow:40,  refHigh:999, fmt: v => v<40?'caution':v<50?'watch':'normal' },
-  TG:         { name:'중성지방',        unit:'mg/dL', refLow:0,   refHigh:150, fmt: v => v>200?'caution':v>150?'watch':'normal' },
-  GLUCOSE:    { name:'공복혈당',        unit:'mg/dL', refLow:70,  refHigh:100, fmt: v => v>=126?'caution':v>100?'watch':'normal' },
-  VITD:       { name:'비타민D',         unit:'ng/mL', refLow:30,  refHigh:100, fmt: v => v<10?'caution':v<30?'watch':'normal' },
-  HB:         { name:'헤모글로빈',      unit:'g/dL',  refLow:12,  refHigh:17,  fmt: v => v<7?'caution':v<12?'watch':'normal' },
-  FERRITIN:   { name:'페리틴',          unit:'ng/mL', refLow:12,  refHigh:150, fmt: v => v<12?'watch':'normal' },
-  AST:        { name:'AST 간수치',      unit:'IU/L',  refLow:0,   refHigh:40,  fmt: v => v>120?'caution':v>40?'watch':'normal' },
-  ALT:        { name:'ALT 간수치',      unit:'IU/L',  refLow:0,   refHigh:40,  fmt: v => v>120?'caution':v>40?'watch':'normal' },
-  CREATININE: { name:'크레아티닌',      unit:'mg/dL', refLow:0.6, refHigh:1.2, fmt: v => v>1.5?'caution':v>1.2?'watch':'normal' },
-};
+// ═══════════════════════════════════════════════════════
+// 추천 알고리즘 (JS 포팅)
+// ═══════════════════════════════════════════════════════
+const W = { biomarker:.35, nutrition:.25, context:.20, preference:.10, adherence:.10 };
 
-const STATUS_LABEL = { normal:'정상', watch:'경계', caution:'주의' };
-const TREND_ICON   = { up:'↑', down:'↓', same:'→' };
-
-// ─── 상태 ─────────────────────────────────────────────────────
-let currentUser = 'user_001';
-let trendChart  = null;
-
-// ─── 렌더 함수 ───────────────────────────────────────────────
-function switchUser(uid) {
-  currentUser = uid;
-  document.getElementById('tab_user_001').classList.toggle('active', uid === 'user_001');
-  document.getElementById('tab_user_002').classList.toggle('active', uid === 'user_002');
-  render();
+function needScore(code, val) {
+  if (val === null) return 0;
+  const m = { LDL: v => Math.min((v-100)/100,1), HDL: v => Math.max(0,Math.min((50-v)/30,1)),
+    TG: v => Math.min(Math.max(0,(v-100)/150),1), GLUCOSE: v => Math.min(Math.max(0,(v-90)/60),1),
+    VITD: v => Math.min(Math.max(0,(30-v)/30),1), HB: v => Math.min(Math.max(0,(13-v)/6),1),
+    FERRITIN: v => Math.min(Math.max(0,(15-v)/15),1), ALT: v => Math.min(Math.max(0,(v-30)/90),1),
+    CREATININE: v => Math.min(Math.max(0,(v-1.0)/1.0),1) };
+  return m[code] ? Math.max(0, m[code](val)) : 0;
 }
 
-function render() {
-  const u = USERS[currentUser];
-  renderBiomarkers(u);
-  renderTrend(u);
-  renderContext(u);
-  renderRecommendations(u.recommendations);
+function bioArea(markers) {
+  const g = v => v !== null ? v : 0;
+  return {
+    lipid:   Math.min(1, needScore('LDL',markers.LDL)*0.5 + needScore('TG',markers.TG)*0.3 + needScore('HDL',markers.HDL)*0.2),
+    glucose: needScore('GLUCOSE', markers.GLUCOSE),
+    vitd:    needScore('VITD', markers.VITD),
+    iron:    Math.min(1, needScore('HB',markers.HB)*0.5 + needScore('FERRITIN',markers.FERRITIN)*0.5),
+    liver:   needScore('ALT', markers.ALT),
+    renal:   markers.CREATININE !== null && markers.CREATININE > 1.4 ? 1 : 0,
+  };
 }
 
-function renderBiomarkers(u) {
-  const test   = u.tests[u.latestIdx];
-  const prev   = u.latestIdx > 0 ? u.tests[u.latestIdx - 1] : null;
-  document.getElementById('bm-date').textContent = test.date + ' · ' + test.lab;
+function cosine(a, b) {
+  const dot = a.reduce((s,v,i)=>s+v*b[i],0);
+  const na = Math.sqrt(a.reduce((s,v)=>s+v*v,0));
+  const nb = Math.sqrt(b.reduce((s,v)=>s+v*v,0));
+  return dot / (na*nb + 1e-9);
+}
 
-  const grid = document.getElementById('bm-grid');
-  grid.innerHTML = '';
-  for (const [code, val] of Object.entries(test.markers)) {
-    const meta = BM_META[code]; if (!meta) continue;
-    const st   = meta.fmt(val);
-    const prevVal = prev && prev.markers[code];
-    let trendIcon = '';
-    if (prevVal) {
-      const diff = val - prevVal;
-      const goodDir = (code === 'HDL' || code === 'HB' || code === 'FERRITIN' || code === 'VITD');
-      if (Math.abs(diff) < 0.5) trendIcon = '→';
-      else trendIcon = diff > 0 ? (goodDir ? '↑' : '↑') : (goodDir ? '↓' : '↓');
+function foodNutritionFit(food, bio) {
+  const fv = [
+    Math.min(food.fiber/5,1),
+    Math.min(food.iron/3,1),
+    Math.min(food.vitd/10,1),
+    Math.max(0,1-food.satFat/5),
+    Math.max(0,1-food.sodium/800),
+  ];
+  const hv = [
+    Math.max(bio.glucose, bio.lipid),
+    bio.iron,
+    bio.vitd,
+    bio.lipid,
+    bio.lipid*0.5 + bio.liver*0.5,
+  ];
+  return cosine(fv, hv);
+}
+
+function suppBioFit(supp, bio) {
+  const map = { lipid:['LDL','TG'], glucose:['GLUCOSE'], vitd:['VITD'], iron:['HB','FERRITIN'], liver:['ALT'] };
+  return bio[supp.area] || 0;
+}
+
+function ctxScore(type, ctx) {
+  if (type==='supplement') return Math.min(1, 0.5 + ctx.sleepDebt*0.05 + ctx.stressNorm*0.05);
+  if (type==='food')       return Math.min(1, 0.5 - ctx.lateMealRate*0.10 + (1-ctx.skipBreakfast)*0.05);
+  if (type==='routine')    return Math.min(1, 0.4 + ctx.stressNorm*0.15 + ctx.sleepDebt*0.10);
+  return 0.5;
+}
+
+function finalScore(scores) {
+  return W.biomarker*scores.biomarker + W.nutrition*scores.nutrition + W.context*scores.context + W.preference*scores.preference + W.adherence*scores.adherence;
+}
+
+function mmrRerank(items, topK=5, lambda=0.6) {
+  if (!items.length) return [];
+  const sel = [items[0]];
+  const rem = items.slice(1);
+  while (sel.length < topK && rem.length) {
+    let best=null, bestScore=-Infinity;
+    for (const c of rem) {
+      const sim = sel.some(s=>s.itemType===c.itemType) ? 1 : 0;
+      const sc = lambda*c.final - (1-lambda)*sim;
+      if (sc > bestScore) { bestScore=sc; best=c; }
     }
-    grid.innerHTML += `
-      <div class="bm-card ${st}">
-        <div class="bm-trend">${trendIcon}</div>
-        <div class="bm-name">${meta.name}</div>
-        <div class="bm-value">${val}</div>
-        <div class="bm-unit">${meta.unit}</div>
-        <span class="bm-status">${STATUS_LABEL[st]}</span>
-      </div>`;
+    if (best) { sel.push(best); rem.splice(rem.indexOf(best),1); }
+  }
+  return sel;
+}
+
+// 안전 필터
+function safetyCheck(supp, markers, conditions) {
+  const flags = [];
+  // 위험 수치
+  if (markers.ALT !== null && markers.ALT >= 120) flags.push({type:'danger', msg:`ALT ${markers.ALT}IU/L — 간수치 위험 수준으로 영양제 추천을 제한합니다.`});
+  if (markers.CREATININE !== null && markers.CREATININE >= 1.5) flags.push({type:'danger', msg:`크레아티닌 ${markers.CREATININE}mg/dL — 신장 기능 이상 가능성. 고용량 영양제 제한.`});
+  if (markers.GLUCOSE !== null && markers.GLUCOSE >= 126) flags.push({type:'warning', msg:`공복혈당 ${markers.GLUCOSE}mg/dL — 당뇨 진단 기준. 의료진 상담이 필요합니다.`});
+  if (markers.VITD !== null && markers.VITD <= 5) flags.push({type:'danger', msg:`비타민D ${markers.VITD}ng/mL — 심각한 결핍. 고용량 보충 전 의료진 상담 권고.`});
+  if (markers.HB !== null && markers.HB < 7) flags.push({type:'danger', msg:`헤모글로빈 ${markers.HB}g/dL — 심각한 빈혈. 의료진 상담이 필요합니다.`});
+  // 복약 충돌
+  for (const cond of conditions) {
+    if (supp.risk.includes(cond)) flags.push({type:'warning', msg:`${cond} 이력으로 인해 ${supp.name} 추천이 제한됩니다.`});
+  }
+  // 신장질환 + 마그네슘/베르베린
+  if (conditions.includes('신장질환') && (supp.name.includes('마그네슘')||supp.name.includes('베르베린'))) flags.push({type:'warning', msg:'신장질환으로 해당 성분 추천이 제한됩니다.'});
+  // 임신수유 + 베르베린
+  if (conditions.includes('임신수유') && supp.name.includes('베르베린')) flags.push({type:'danger', msg:'임신·수유 중 베르베린 복용은 금지됩니다.'});
+  return flags.filter((f,i,a)=>a.findIndex(x=>x.msg===f.msg)===i);
+}
+
+function globalSafetyFlags(markers, conditions) {
+  const flags = [];
+  if (markers.ALT !== null && markers.ALT >= 120) flags.push({type:'danger', msg:`⚠️ ALT ${markers.ALT}IU/L — 간수치 위험 수준. 의료진 상담 권고`});
+  if (markers.CREATININE !== null && markers.CREATININE >= 1.5) flags.push({type:'danger', msg:`⚠️ 크레아티닌 ${markers.CREATININE}mg/dL — 신장 기능 이상 가능성`});
+  if (markers.GLUCOSE !== null && markers.GLUCOSE >= 126) flags.push({type:'warning', msg:`⚠️ 공복혈당 ${markers.GLUCOSE}mg/dL — 당뇨 진단 기준 해당. 의료진 상담 필요`});
+  if (markers.VITD !== null && markers.VITD <= 5) flags.push({type:'danger', msg:`🚨 비타민D ${markers.VITD}ng/mL — 심각한 결핍. 고용량 보충 전 의료진 상담 필수`});
+  if (markers.HB !== null && markers.HB < 7) flags.push({type:'danger', msg:`🚨 헤모글로빈 ${markers.HB}g/dL — 심각한 빈혈. 즉시 의료진 상담 필요`});
+  if (conditions.includes('항응고제복용')) flags.push({type:'warning', msg:'💊 항응고제 복용 중 — 오메가3 고용량 및 코엔자임Q10 추천 제한 적용'});
+  return flags;
+}
+
+function runRecommendation(markers, conditions, ctxRaw) {
+  const bio = bioArea(markers);
+  const ctx = {
+    sleepDebt: Math.max(0, 8 - ctxRaw.sleep),
+    stressNorm: (ctxRaw.stress-1)/4,
+    skipBreakfast: ctxRaw.breakfast/7,
+    lateMealRate: ctxRaw.latemeal/7,
+    exercise: ctxRaw.exercise,
+  };
+
+  const candidates = [];
+
+  // 영양제 후보
+  for (const supp of SUPPLEMENTS) {
+    const flags = safetyCheck(supp, markers, conditions);
+    const hasBlock = flags.some(f=>f.type==='danger'||(f.type==='warning'&&f.msg.includes('제한')));
+    if (hasBlock) continue;
+    const bmFit = suppBioFit(supp, bio);
+    if (bmFit < 0.1) continue;
+    const cScore = ctxScore('supplement', ctx);
+    const scores = { biomarker:bmFit, nutrition:bmFit*0.8, context:cScore, preference:0.80, adherence:0.70 };
+    candidates.push({ itemType:'supplement', icon:supp.icon, name:supp.name, reason:supp.reason, scores, final:finalScore(scores) });
   }
 
-  // 안전 알림
-  const a = u.safetyAlert;
-  document.getElementById('alert-area').innerHTML = `
-    <div class="alert-box ${a.type}">
-      <span class="alert-icon">${a.type === 'danger' ? '🚨' : a.type === 'warning' ? '⚠️' : '✅'}</span>
-      <div>${a.msg}</div>
+  // 식품 후보
+  for (const food of FOODS) {
+    const nFit = foodNutritionFit(food, bio);
+    if (nFit < 0.25) continue;
+    const cScore = ctxScore('food', ctx);
+    const bmFit = nFit * 0.9;
+    const scores = { biomarker:bmFit, nutrition:nFit, context:cScore, preference:0.75, adherence:0.80 };
+    candidates.push({ itemType:'food', icon:food.icon, name:food.name, reason:food.reason + '을(를) 권장합니다.', scores, final:finalScore(scores) });
+  }
+
+  // 생활루틴
+  if (bio.glucose >= 0.4 || ctx.lateMealRate >= 0.4) {
+    const scores = { biomarker:bio.glucose, nutrition:0.5, context:ctxScore('routine',ctx), preference:0.70, adherence:0.60 };
+    candidates.push({ itemType:'routine', icon:'🍽️', name:'야식 제한 & 아침식사 루틴', reason:'혈당 관리를 위해 야식을 줄이고 아침 식사를 규칙적으로 하는 루틴을 권장합니다.', scores, final:finalScore(scores) });
+  }
+  if (ctx.sleepDebt >= 1.5) {
+    const scores = { biomarker:0.4, nutrition:0.3, context:ctxScore('routine',ctx), preference:0.75, adherence:0.65 };
+    candidates.push({ itemType:'routine', icon:'😴', name:'수면 개선 루틴', reason:`수면 부족(${ctxRaw.sleep}시간) — 취침 1시간 전 스크린 줄이기, 일정한 취침 시각 유지를 권장합니다.`, scores, final:finalScore(scores) });
+  }
+  if (ctx.stressNorm >= 0.6) {
+    const scores = { biomarker:0.3, nutrition:0.3, context:ctxScore('routine',ctx), preference:0.70, adherence:0.60 };
+    candidates.push({ itemType:'routine', icon:'🧘', name:'스트레스 관리 루틴', reason:'고스트레스 상태 — 하루 10분 명상 또는 산책을 권장합니다.', scores, final:finalScore(scores) });
+  }
+  if (ctx.exercise === 0) {
+    const scores = { biomarker:Math.max(bio.lipid, bio.glucose)*0.6, nutrition:0.3, context:ctxScore('routine',ctx), preference:0.75, adherence:0.55 };
+    candidates.push({ itemType:'routine', icon:'🏃', name:'유산소 운동 루틴', reason:'운동 없음 — 주 3~5회 30분 이상 유산소 운동(빠르게 걷기, 수영 등)을 권장합니다.', scores, final:finalScore(scores) });
+  }
+
+  candidates.sort((a,b)=>b.final-a.final);
+  const result = mmrRerank(candidates, 5);
+  return result.map((r,i)=>({...r, rank:i+1}));
+}
+
+// ═══════════════════════════════════════════════════════
+// 탭 / 렌더 제어
+// ═══════════════════════════════════════════════════════
+let currentTab = 'user_001';
+let trendChart = null;
+
+function switchTab(uid) {
+  currentTab = uid;
+  ['user_001','user_002','custom'].forEach(id=>{
+    document.getElementById('tab_'+id).classList.toggle('active', id===uid);
+  });
+  const isCustom = uid === 'custom';
+  document.getElementById('demo-page').classList.toggle('active', !isCustom);
+  document.getElementById('input-page').classList.toggle('active', isCustom);
+  if (!isCustom) renderDemo(uid);
+}
+
+// ─── 데모 렌더 ───
+function renderDemo(uid) {
+  const u = DEMO_USERS[uid];
+  renderBM(u.tests[u.latestIdx], u.latestIdx>0?u.tests[u.latestIdx-1]:null, 'bm-grid', 'bm-date', 'alert-area', u.safetyAlert);
+  renderTrend(u);
+  renderCtxSliders(u.ctx);
+  renderRecs(u.recs, 'rec-list');
+}
+
+function renderBM(test, prev, gridId, dateId, alertId, safetyAlert) {
+  if (dateId) document.getElementById(dateId).textContent = test.date + ' · ' + test.lab;
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  for (const [code, val] of Object.entries(test.markers)) {
+    const m = BM_META[code]; if (!m) continue;
+    const st = m.status(val);
+    const prevVal = prev?.markers[code];
+    let trend = '';
+    if (prevVal !== undefined) {
+      const diff = val - prevVal;
+      if (Math.abs(diff) < 0.5) trend = '→';
+      else trend = diff > 0 ? '↑' : '↓';
+    }
+    grid.innerHTML += `<div class="bm-card ${st}">
+      <div class="bm-trend">${trend}</div>
+      <div class="bm-name">${m.name}</div>
+      <div class="bm-value">${val}</div>
+      <div class="bm-unit">${m.unit}</div>
+      <span class="bm-status">${ST_LABEL[st]}</span>
     </div>`;
+  }
+  if (alertId && safetyAlert) {
+    document.getElementById(alertId).innerHTML = `<div class="alert-box ${safetyAlert.type}"><div>${safetyAlert.msg}</div></div>`;
+  }
 }
 
 function renderTrend(u) {
   document.getElementById('trend-count').textContent = u.tests.length + '회 검사';
-  const labels = u.tests.map(t => t.date.slice(0,7));
-  const trackCodes = Object.keys(u.tests[0].markers).slice(0, 4);
-
-  const colors = ['#00897B','#1565C0','#E65100','#AD1457','#6A1B9A'];
-  const datasets = trackCodes.map((code, i) => ({
-    label: BM_META[code]?.name || code,
-    data: u.tests.map(t => t.markers[code] ?? null),
-    borderColor: colors[i],
-    backgroundColor: colors[i] + '22',
-    tension: 0.3,
-    pointRadius: 5,
-    pointHoverRadius: 7,
-    fill: false,
-    spanGaps: true,
+  const labels = u.tests.map(t=>t.date.slice(0,7));
+  const codes = Object.keys(u.tests[0].markers).slice(0,4);
+  const colors = ['#00897B','#1565C0','#E65100','#AD1457'];
+  const datasets = codes.map((code,i)=>({
+    label: BM_META[code]?.name||code,
+    data: u.tests.map(t=>t.markers[code]??null),
+    borderColor:colors[i], backgroundColor:colors[i]+'22',
+    tension:.3, pointRadius:5, fill:false, spanGaps:true,
   }));
-
-  if (trendChart) { trendChart.destroy(); trendChart = null; }
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  trendChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 11, family: 'Noto Sans KR' }, boxWidth: 12 } },
-        tooltip: { mode: 'index', intersect: false }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-        y: { grid: { color: '#ECEFF1' }, ticks: { font: { size: 11 } } }
-      }
+  if (trendChart) { trendChart.destroy(); trendChart=null; }
+  trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type:'line', data:{labels,datasets},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom',labels:{font:{size:11,family:'Noto Sans KR'},boxWidth:12}} },
+      scales:{ x:{grid:{display:false},ticks:{font:{size:11}}}, y:{grid:{color:'#ECEFF1'},ticks:{font:{size:11}}} }
     }
   });
 }
 
-function renderContext(u) {
-  const d = u.contextDefaults;
+function renderCtxSliders(ctx) {
   const fields = [
-    { key:'sleep',         label:'수면 시간',   min:4, max:9,  step:0.5, unit:'h',  val:d.sleep },
-    { key:'stress',        label:'스트레스',    min:1, max:5,  step:1,   unit:'/5', val:d.stress },
-    { key:'skipBreakfast', label:'아침 결식',   min:0, max:1,  step:1,   unit:'',   val:d.skipBreakfast, map:{0:'없음',1:'결식'} },
-    { key:'lateMeal',      label:'야식 빈도',   min:0, max:1,  step:0.1, unit:'',   val:d.lateMeal, pct:true },
-    { key:'exercise',      label:'운동 시간',   min:0, max:60, step:5,   unit:'분', val:d.exercise },
+    {key:'sleep',label:'수면 시간',val:ctx.sleep,min:3,max:10,step:.5,fmt:v=>v+'h'},
+    {key:'stress',label:'스트레스',val:ctx.stress,min:1,max:5,step:1,fmt:v=>v+'/5'},
+    {key:'skipBreakfast',label:'아침 결식',val:ctx.skipBreakfast,min:0,max:1,step:1,fmt:v=>v?'결식':'없음'},
+    {key:'lateMeal',label:'야식 빈도',val:ctx.lateMeal,min:0,max:1,step:.1,fmt:v=>Math.round(v*100)+'%'},
+    {key:'exercise',label:'운동 시간',val:ctx.exercise,min:0,max:60,step:5,fmt:v=>v+'분'},
   ];
-
-  const body = document.getElementById('ctx-body');
-  body.innerHTML = fields.map(f => {
-    const display = f.map ? f.map[f.val] : (f.pct ? Math.round(f.val*100)+'%' : f.val + f.unit);
-    return `
-      <div class="ctx-row">
-        <span class="ctx-label">${f.label}</span>
-        <input type="range" class="ctx-slider" id="ctx_${f.key}"
-          min="${f.min}" max="${f.max}" step="${f.step}" value="${f.val}"
-          oninput="updateCtxVal('${f.key}', this.value)">
-        <span class="ctx-val" id="ctxval_${f.key}">${display}</span>
-      </div>`;
-  }).join('') + `<button class="run-btn" onclick="rerun()">🔄 맥락 변경 후 재추천</button>`;
+  document.getElementById('ctx-body').innerHTML = fields.map(f=>`
+    <div class="ctx-row">
+      <span class="ctx-label">${f.label}</span>
+      <input type="range" class="ctx-slider" min="${f.min}" max="${f.max}" step="${f.step}" value="${f.val}"
+        oninput="updateDemoCtx('${f.key}',this.value,'${f.fmt}')">
+      <span class="ctx-val" id="dctx_${f.key}">${f.fmt(f.val)}</span>
+    </div>`).join('') + `<button class="btn" onclick="rerunDemo()">🔄 맥락 변경 후 재추천</button>`;
 }
 
-function updateCtxVal(key, val) {
-  const el = document.getElementById('ctxval_' + key);
+function updateDemoCtx(key, val, fmtStr) {
   const numVal = parseFloat(val);
-  if (key === 'skipBreakfast') el.textContent = numVal > 0 ? '결식' : '없음';
-  else if (key === 'lateMeal') el.textContent = Math.round(numVal * 100) + '%';
-  else if (key === 'sleep')    el.textContent = numVal + 'h';
-  else if (key === 'exercise') el.textContent = numVal + '분';
-  else el.textContent = val + '/5';
+  const fmtMap = {
+    sleep: v=>v+'h', stress: v=>v+'/5', skipBreakfast: v=>v>0?'결식':'없음',
+    lateMeal: v=>Math.round(v*100)+'%', exercise: v=>v+'분'
+  };
+  document.getElementById('dctx_'+key).textContent = fmtMap[key](numVal);
 }
 
-function rerun() {
-  const btn = document.querySelector('.run-btn');
-  btn.textContent = '⏳ 추천 중...';
-  btn.disabled = true;
-  setTimeout(() => {
-    btn.textContent = '✅ 재추천 완료!';
-    btn.disabled = false;
-    // 실제로는 맥락값을 읽어 점수를 재계산, 데모에서는 약간의 랜덤 변동만 적용
-    const recs = USERS[currentUser].recommendations.map(r => ({
-      ...r,
-      scores: Object.fromEntries(Object.entries(r.scores).map(([k,v]) => [k, Math.min(1, Math.max(0, v + (Math.random()-.5)*.06))])),
+function rerunDemo() {
+  const btn = document.querySelector('#demo-page .btn');
+  btn.textContent='⏳ 재계산 중...'; btn.disabled=true;
+  setTimeout(()=>{
+    const recs = DEMO_USERS[currentTab].recs.map(r=>({
+      ...r, scores:Object.fromEntries(Object.entries(r.scores).map(([k,v])=>[k,Math.min(1,Math.max(0,v+(Math.random()-.5)*.06))]))
     }));
-    recs.forEach(r => {
-      const w = { biomarker:.35, nutrition:.25, context:.20, preference:.10, adherence:.10 };
-      r.final = Object.entries(w).reduce((s,[k,wt]) => s + wt*(r.scores[k]||0), 0);
-    });
-    recs.sort((a,b) => b.final - a.final);
-    recs.forEach((r,i) => r.rank = i+1);
-    renderRecommendations(recs);
-    setTimeout(() => { btn.textContent = '🔄 맥락 변경 후 재추천'; }, 2000);
-  }, 800);
+    recs.forEach(r=>{ r.final=finalScore(r.scores); });
+    recs.sort((a,b)=>b.final-a.final);
+    recs.forEach((r,i)=>r.rank=i+1);
+    renderRecs(recs,'rec-list');
+    btn.textContent='✅ 재추천 완료!'; btn.disabled=false;
+    setTimeout(()=>{ btn.textContent='🔄 맥락 변경 후 재추천'; },2000);
+  },700);
 }
 
-function renderRecommendations(recs) {
+function renderRecs(recs, listId) {
   const TYPE_LABEL = { supplement:'영양제', food:'식품', routine:'생활루틴' };
-  document.getElementById('rec-list').innerHTML = recs.map(r => `
+  document.getElementById(listId).innerHTML = recs.map(r=>`
     <div class="rec-item fade-in">
       <div class="rec-rank">#${r.rank}</div>
-      <div class="final-score">
-        <span class="num">${(r.final * 100).toFixed(0)}</span>
-        <span class="lbl">Score</span>
-      </div>
+      <div class="final-score"><span class="num">${Math.round(r.final*100)}</span><span class="lbl">Score</span></div>
       <div class="rec-top">
-        <div class="rec-icon ${r.type}">${r.icon}</div>
+        <div class="rec-icon ${r.itemType||r.type}">${r.icon}</div>
         <div>
           <div class="rec-name">${r.name}</div>
-          <span class="rec-type ${r.type}">${TYPE_LABEL[r.type]}</span>
+          <span class="rec-type ${r.itemType||r.type}">${TYPE_LABEL[r.itemType||r.type]}</span>
         </div>
       </div>
       <div class="rec-reason">${r.reason}</div>
       <div class="score-bars">
-        ${[['biomarker','바이오마커','35%'],['nutrition','영양 적합','25%'],['context','생활맥락','20%'],['preference','선호도','10%'],['adherence','지속성','10%']].map(([k,l,p]) => `
+        ${[['biomarker','바이오마커','35%'],['nutrition','영양적합','25%'],['context','생활맥락','20%'],['preference','선호도','10%'],['adherence','지속성','10%']].map(([k,l,p])=>`
           <div class="score-row">
-            <span class="score-label">${l}<br><small style="color:#90A4AE">${p}</small></span>
+            <span class="score-label">${l}<br><small style="color:#90A4AE;font-size:9px">${p}</small></span>
             <div class="score-track"><div class="score-fill" style="width:${(r.scores[k]||0)*100}%"></div></div>
-            <span class="score-num">${((r.scores[k]||0)*100).toFixed(0)}</span>
+            <span class="score-num">${Math.round((r.scores[k]||0)*100)}</span>
           </div>`).join('')}
       </div>
     </div>`).join('');
 }
 
-// ─── 초기화 ──────────────────────────────────────────────────
-render();
+// ═══════════════════════════════════════════════════════
+// 직접 입력 폼 제어
+// ═══════════════════════════════════════════════════════
+function markInput(el) { el.classList.toggle('has-value', el.value !== ''); }
+
+function toggleCheck(el, condName) {
+  const cb = el.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  el.classList.toggle('checked', cb.checked);
+}
+
+function updateCtx(key, val) {
+  const numVal = parseFloat(val);
+  const fmt = { sleep:`${numVal}h`, stress:`${numVal}/5`, breakfast:`${numVal}일`, latemeal:`${numVal}회`, exercise:`${numVal}분` };
+  document.getElementById('ctxv_'+key).textContent = fmt[key];
+}
+
+function getConditions() {
+  return ['고혈압','당뇨','항응고제복용','신장질환','간질환','임신수유'].filter(c=>document.getElementById('cond_'+c)?.checked);
+}
+
+function getMarkers() {
+  const keys = ['LDL','HDL','TG','GLUCOSE','VITD','HB','FERRITIN','ALT','CREATININE'];
+  const m = {};
+  for (const k of keys) {
+    const v = document.getElementById('in_'+k)?.value;
+    m[k] = v !== '' && v !== undefined ? parseFloat(v) : null;
+  }
+  return m;
+}
+
+function getCtxRaw() {
+  return {
+    sleep: parseFloat(document.getElementById('ctx_sleep').value),
+    stress: parseFloat(document.getElementById('ctx_stress').value),
+    breakfast: parseFloat(document.getElementById('ctx_breakfast').value),
+    latemeal: parseFloat(document.getElementById('ctx_latemeal').value),
+    exercise: parseFloat(document.getElementById('ctx_exercise').value),
+  };
+}
+
+function runAnalysis() {
+  const markers = getMarkers();
+  const hasAny = Object.values(markers).some(v=>v!==null);
+  if (!hasAny) {
+    alert('혈액검사 수치를 하나 이상 입력해주세요.');
+    return;
+  }
+
+  const conditions = getConditions();
+  const ctxRaw = getCtxRaw();
+
+  // 안전 플래그
+  const safetyFlags = globalSafetyFlags(markers, conditions);
+
+  // 추천 실행
+  const recs = runRecommendation(markers, conditions, ctxRaw);
+
+  // 결과 표시
+  document.getElementById('result-section').classList.add('show');
+  document.getElementById('result-title').textContent = '분석 완료';
+  document.getElementById('result-sub').textContent = `입력된 ${Object.values(markers).filter(v=>v!==null).length}개 항목 기준 · 5-Layer Hybrid Algorithm`;
+
+  // 수치 카드
+  const validMarkers = Object.fromEntries(Object.entries(markers).filter(([,v])=>v!==null));
+  const fakeTest = { date:'직접 입력', lab:'', markers:validMarkers };
+  renderBM(fakeTest, null, 'my-bm-grid', null, null, null);
+
+  // 안전 알림
+  const alertArea = document.getElementById('my-alert-area');
+  if (safetyFlags.length > 0) {
+    alertArea.innerHTML = safetyFlags.map(f=>`<div class="alert-box ${f.type}" style="margin-top:10px"><div>${f.msg}</div></div>`).join('');
+  } else {
+    alertArea.innerHTML = `<div class="alert-box safe" style="margin-top:10px"><div>✅ 위험 수치 및 복약 충돌 없음 — 정상 범위 내 추천 진행</div></div>`;
+  }
+
+  // 추천 결과
+  if (recs.length === 0) {
+    document.getElementById('my-rec-list').innerHTML = `<div class="empty-state"><div class="e-icon">🔍</div><p>입력된 수치 기준으로 추천할 항목이 없습니다.<br>더 많은 항목을 입력해주세요.</p></div>`;
+  } else {
+    renderRecs(recs, 'my-rec-list');
+  }
+
+  // 스크롤
+  document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function resetForm() {
+  document.getElementById('result-section').classList.remove('show');
+  ['LDL','HDL','TG','GLUCOSE','VITD','HB','FERRITIN','ALT','CREATININE'].forEach(k=>{
+    const el = document.getElementById('in_'+k);
+    if (el) { el.value=''; el.classList.remove('has-value'); }
+  });
+  ['고혈압','당뇨','항응고제복용','신장질환','간질환','임신수유'].forEach(c=>{
+    const cb = document.getElementById('cond_'+c);
+    if (cb) { cb.checked=false; cb.closest('.check-item').classList.remove('checked'); }
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── 초기 렌더 ───
+renderDemo('user_001');
 </script>
 </body>
 </html>
