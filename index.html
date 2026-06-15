@@ -222,6 +222,7 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
   <div class="tabs-wrap">
     <div class="tab active" onclick="goTab('demo1')" id="t_demo1"><div class="av av-m">김</div> 데모 (김건강)</div>
     <div class="tab" onclick="goTab('demo2')" id="t_demo2"><div class="av av-f">이</div> 데모 (이웰니스)</div>
+    <div class="tab" onclick="goTab('demo3')" id="t_demo3"><div class="av av-t">R</div> 실제 샘플</div>
     <div class="tab" onclick="goTab('mydata')" id="t_mydata">✏️ 내 수치 분석</div>
     <div class="tab" onclick="goTab('checker')" id="t_checker">💊 영양제 점검</div>
     <div class="tab" onclick="goTab('diary')" id="t_diary">📋 복약 일지</div>
@@ -295,6 +296,90 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
       <div class="card">
         <div class="ch"><span class="ico">🛒</span><h3>추천 제품</h3><span class="sub">효과 검증 기반</span></div>
         <div class="cb"><div class="g3" id="d2_prod"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DEMO 3 (실제 샘플) ═══════════════ -->
+<div class="page" id="p_demo3">
+  <div class="alert danger" style="margin-bottom:16px;border-radius:12px;padding:14px 18px">
+    🚨 <b>이상지질혈증(진료)</b> — LDL 153mg/dL, 총콜레스테롤 257mg/dL. 동맥경화·심혈관계 질환 의심으로 치료 권고
+  </div>
+  <div style="display:grid;grid-template-columns:380px 1fr;gap:20px;">
+    <div>
+      <div class="card">
+        <div class="ch"><span class="ico">🔬</span><h3>최신 혈액검사 결과</h3><span class="sub">2025-05-09</span></div>
+        <div class="cb">
+          <div class="bm-grid" id="d3_bm"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ico">📈</span><h3>3회 검사 추이</h3><span class="sub">2021 → 2024 → 2025</span></div>
+        <div class="cb"><div class="chart-wrap"><canvas id="d3_chart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ico">🎯</span><h3>목표 달성 현황</h3><span class="sub">Explainability</span></div>
+        <div class="cb" id="d3_explain"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:linear-gradient(135deg,#FFF3E0,#FFEBEE);border:1px solid #FFCC80">
+        <div class="ch" style="background:#BF360C"><span class="ico">⚠️</span><h3>핵심 주목 지표</h3></div>
+        <div class="cb">
+          <div class="g2">
+            <div>
+              <div style="font-size:12px;color:var(--gr);margin-bottom:4px">LDL 콜레스테롤 추이</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:13px;color:var(--gr)">128</span>
+                <span style="color:var(--gr)">→</span>
+                <span style="font-size:13px;color:var(--gr)">116</span>
+                <span style="color:var(--gr)">→</span>
+                <span style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C62828">153</span>
+                <span class="pill red">+37↑</span>
+              </div>
+              <div style="font-size:11px;color:#C62828;margin-top:4px">⚠️ 2024→2025 1년 사이 37mg/dL 급등</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--gr);margin-bottom:4px">총콜레스테롤 추이</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:13px;color:var(--gr)">226</span>
+                <span style="color:var(--gr)">→</span>
+                <span style="font-size:13px;color:var(--gr)">217</span>
+                <span style="color:var(--gr)">→</span>
+                <span style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C62828">257</span>
+                <span class="pill red">+40↑</span>
+              </div>
+              <div style="font-size:11px;color:#C62828;margin-top:4px">⚠️ 정상(200) 대비 57mg/dL 초과</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--gr);margin-bottom:4px">HDL 콜레스테롤</div>
+              <div style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#2E7D32">79 <span style="font-size:13px">mg/dL</span></div>
+              <div style="font-size:11px;color:#2E7D32;margin-top:4px">✅ 좋음 — HDL 높을수록 심혈관 보호</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--gr);margin-bottom:4px">심장병 위험인자</div>
+              <div style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#E65100">3.3 <span style="font-size:13px">(기준 ≤4.5)</span></div>
+              <div style="font-size:11px;color:#E65100;margin-top:4px">⚠️ 경계 수준 — LDL 관리 필요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ico">⚙️</span><h3>5-Layer Hybrid Algorithm</h3></div>
+        <div class="cb" style="padding-bottom:14px">
+          <div class="layers">
+            <div class="li" style="background:#FFEBEE"><span class="ln">L1</span>Safety<br>Guardrail<span class="lp">우선차단</span></div>
+            <div class="li" style="background:#FFF3E0"><span class="ln">L2</span>Biomarker<br>Scoring<span class="lp">35%</span></div>
+            <div class="li" style="background:#E8F5E9"><span class="ln">L3</span>Content<br>Matching<span class="lp">25%</span></div>
+            <div class="li" style="background:#E3F2FD"><span class="ln">L4</span>Contextual<br>Scoring<span class="lp">20%</span></div>
+            <div class="li" style="background:#F3E5F5"><span class="ln">L5</span>MMR<br>Reranker<span class="lp">15%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ico">✨</span><h3>개인 맞춤 추천</h3><span class="sub">Top-5 · MMR</span></div>
+        <div class="cb"><div class="rec-list" id="d3_rec"></div></div>
       </div>
     </div>
   </div>
@@ -783,13 +868,36 @@ function renderProds(indices,id){
 // ═══════════════════════════════════════════════════════
 //  TAB CONTROL
 // ═══════════════════════════════════════════════════════
-const TABS=['demo1','demo2','mydata','checker','diary','b2b','food'];
+const TABS=['demo1','demo2','demo3','mydata','checker','diary','b2b','food'];
 function goTab(id){
   TABS.forEach(t=>{
     document.getElementById('t_'+t).classList.toggle('active',t===id);
     document.getElementById('p_'+t).classList.toggle('active',t===id);
   });
 }
+
+// ═══════════════════════════════════════════════════════
+//  DEMO 3 DATA (실제 검진 샘플)
+// ═══════════════════════════════════════════════════════
+const D3={
+  tests:[
+    {date:'2021-11',markers:{LDL:128,HDL:79,TG:93,ALT:15,HB:13.2,CR:0.70}},
+    {date:'2024-04',markers:{LDL:116,HDL:78,TG:113,ALT:18,HB:12.7,CR:0.80}},
+    {date:'2025-05',markers:{LDL:153,HDL:79,TG:124,ALT:14,HB:13.2,CR:0.81}},
+  ],
+  recs:[
+    {r:1,type:'supplement',icon:'🐠',name:'오메가3 (EPA/DHA) 1000mg',why:'LDL 153mg/dL — 목표(130) 대비 23mg/dL 초과. 오메가3 EPA/DHA가 LDL 및 중성지방 동시 관리에 근거 A등급 효능.',scores:{biomarker:.88,nutrition:.72,context:.68,preference:.82,adherence:.75},final:.80},
+    {r:2,type:'food',icon:'🐟',name:'고등어구이',why:'오메가3(EPA/DHA) 천연 공급원. 주 2~3회 섭취 시 LDL 개선 효과가 임상적으로 검증됨.',scores:{biomarker:.85,nutrition:.92,context:.70,preference:.78,adherence:.84},final:.83},
+    {r:3,type:'food',icon:'🥜',name:'아몬드 한줌',why:'불포화지방산·식이섬유 풍부. LDL 콜레스테롤 저하 및 심장 보호 효과. 매일 30g 섭취 권장.',scores:{biomarker:.78,nutrition:.85,context:.65,preference:.72,adherence:.82},final:.78},
+    {r:4,type:'routine',icon:'🏃',name:'유산소 운동 루틴',why:'HDL이 79로 높은 것은 긍정적. LDL 추가 개선을 위해 주 4회 이상 30분 유산소(빠르게 걷기, 수영) 권장.',scores:{biomarker:.82,nutrition:.5,context:.72,preference:.78,adherence:.62},final:.72},
+    {r:5,type:'food',icon:'🥑',name:'아보카도',why:'식이섬유(5.1g)·불포화지방산 풍부. 포화지방 대체 효과로 LDL 관리에 도움.',scores:{biomarker:.75,nutrition:.82,context:.65,preference:.70,adherence:.78},final:.75},
+  ],
+  explains:[
+    {code:'LDL',label:'LDL 콜레스테롤',vals:[128,116,153],goal:130,dir:'low',unit:'mg/dL'},
+    {code:'TG',label:'중성지방',vals:[93,113,124],goal:150,dir:'low',unit:'mg/dL'},
+    {code:'HB',label:'헤모글로빈',vals:[13.2,12.7,13.2],goal:14,dir:'high',unit:'g/dL'},
+  ],
+};
 
 // ═══════════════════════════════════════════════════════
 //  INIT
@@ -1127,9 +1235,33 @@ function analyzeFoodSel(){
 // ═══════════════════════════════════════════════════════
 initDemo1();
 initDemo2();
+initDemo3();
 initChecker();
 initFoodGrid();
 initDiary();
+
+function initDemo3(){
+  renderBM(D3.tests[2].markers, D3.tests[1].markers, 'd3_bm');
+  renderRecs(D3.recs,'d3_rec');
+  renderExplain(D3.explains,'d3_explain');
+  const labels=D3.tests.map(t=>t.date);
+  const colors=['#C62828','#2E7D32','#E65100','#1565C0'];
+  const codes=[['LDL','LDL 콜레스테롤'],['HDL','HDL 콜레스테롤'],['TG','중성지방'],['HB','헤모글로빈']];
+  new Chart(document.getElementById('d3_chart').getContext('2d'),{
+    type:'line',
+    data:{labels,datasets:codes.map(([c,nm],i)=>({label:nm,data:D3.tests.map(t=>t.markers[c]??null),borderColor:colors[i],backgroundColor:colors[i]+'22',tension:.3,pointRadius:5,fill:false,spanGaps:true}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11,family:'Noto Sans KR'},boxWidth:12}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#ECEFF1'},ticks:{font:{size:11}}}}}
+  });
+}
+
+// 내 수치 분석 폼 기본값 채우기 (실제 검진 수치)
+(function prefillMyForm(){
+  const defaults={in_LDL:153,in_HDL:79,in_TG:124,in_HB:13.2,in_ALT:14,in_CR:0.81};
+  Object.entries(defaults).forEach(([id,v])=>{
+    const el=document.getElementById(id);
+    if(el){el.value=v;el.classList.add('hv');}
+  });
+})();
 </script>
 </body>
 </html>
