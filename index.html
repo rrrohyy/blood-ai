@@ -427,7 +427,10 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
           <div class="ctx-row"><span class="ctx-lbl">아침결식<small>주당</small></span><input type="range" class="ctx-sl" id="sl_bf" min="0" max="7" step="1" value="2" oninput="ctxV('bf',this.value)"><span class="ctx-v" id="cv_bf">2일</span></div>
           <div class="ctx-row"><span class="ctx-lbl">야식<small>주당</small></span><input type="range" class="ctx-sl" id="sl_lm" min="0" max="7" step="1" value="1" oninput="ctxV('lm',this.value)"><span class="ctx-v" id="cv_lm">1회</span></div>
           <div class="ctx-row"><span class="ctx-lbl">운동<small>어제</small></span><input type="range" class="ctx-sl" id="sl_ex" min="0" max="90" step="5" value="20" oninput="ctxV('ex',this.value)"><span class="ctx-v" id="cv_ex">20분</span></div>
-          <button class="btn btn-w" onclick="runMy()">🔬 분석 시작</button>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-out" style="flex:1" onclick="loadRealSampleMy()">📋 실제 샘플</button>
+            <button class="btn" style="flex:1" onclick="runMy()">🔬 분석 시작</button>
+          </div>
         </div>
       </div>
     </div>
@@ -456,7 +459,10 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
             <div class="fg"><label class="fl">공복혈당</label><input class="fi" type="number" id="ck_GL" placeholder="108" oninput="markI(this)"></div>
             <div class="fg"><label class="fl">크레아티닌</label><input class="fi" type="number" id="ck_CR" placeholder="0.9" step="0.1" oninput="markI(this)"></div>
           </div>
-          <button class="btn btn-w" onclick="runChecker()">🔍 영양제 점검하기</button>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-out" style="flex:1" onclick="loadRealSampleChecker()">📋 실제 샘플 불러오기</button>
+            <button class="btn" style="flex:1" onclick="runChecker()">🔍 영양제 점검하기</button>
+          </div>
         </div>
       </div>
     </div>
@@ -486,7 +492,10 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
             <div class="fg"><label class="fl">복용 시작일</label><input class="fi" type="date" id="diary_start" value="2026-03-01"></div>
             <div class="fg"><label class="fl">1일 복용량</label><input class="fi" type="text" id="diary_dose" placeholder="예: 1정"></div>
           </div>
-          <button class="btn btn-w" onclick="addDiary()">기록 추가</button>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-out" style="flex:1" onclick="loadRealSampleDiary()">📋 실제 샘플 불러오기</button>
+            <button class="btn" style="flex:1" onclick="addDiary()">기록 추가</button>
+          </div>
         </div>
       </div>
       <div class="card">
@@ -509,7 +518,10 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
               <div class="fg"><label class="fl">헤모글로빈</label><input class="fi" type="number" id="af_HB" placeholder="12.2" step="0.1"></div>
             </div>
           </div>
-          <button class="btn btn-w" onclick="runCompare()">📈 효과 분석하기</button>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-out" style="flex:1" onclick="loadRealSampleCompare()">📋 실제 샘플</button>
+            <button class="btn" style="flex:1" onclick="runCompare()">📈 효과 분석하기</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1228,6 +1240,69 @@ function analyzeFoodSel(){
           </div>`).join('')}
       </div>
     </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  실제 샘플 불러오기 함수들
+// ═══════════════════════════════════════════════════════
+const REAL={LDL:153,HDL:79,TG:124,HB:13.2,ALT:14,CR:0.81};
+
+function loadRealSampleMy(){
+  const map={in_LDL:153,in_HDL:79,in_TG:124,in_HB:13.2,in_ALT:14,in_CR:0.81};
+  Object.entries(map).forEach(([id,v])=>{const el=document.getElementById(id);if(el){el.value=v;el.classList.add('hv');}});
+  // 슬라이더도 실제 생활 맥락 추정값으로
+  document.getElementById('sl_sleep').value=6.5; ctxV('sleep','6.5');
+  document.getElementById('sl_str').value=3; ctxV('str','3');
+  document.getElementById('sl_bf').value=3; ctxV('bf','3');
+  document.getElementById('sl_lm').value=2; ctxV('lm','2');
+  document.getElementById('sl_ex').value=15; ctxV('ex','15');
+  runMy();
+}
+
+function loadRealSampleChecker(){
+  // 혈액 수치 채우기
+  const mkMap={ck_LDL:153,ck_HDL:79,ck_VD:null,ck_HB:13.2,ck_GL:null,ck_CR:0.81};
+  Object.entries(mkMap).forEach(([id,v])=>{const el=document.getElementById(id);if(el&&v!==null){el.value=v;el.classList.add('hv');}});
+  // LDL 높으니까 오메가3·CoQ10 선택, 혈색소 낮으니 철분도 체크
+  [2,7,4].forEach(sid=>{
+    const cb=document.getElementById('sc_'+sid);
+    if(cb&&!cb.checked){cb.checked=true;cb.closest('.ck').classList.add('on');}
+  });
+  runChecker();
+  document.getElementById('checker_result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function loadRealSampleDiary(){
+  // 실제 샘플 기준 복약 기록 추가 (LDL 높아서 오메가3, 헤모글로빈 낮아서 철분)
+  const diary=getDiary();
+  const presets=[
+    {name:'오메가3 (EPA/DHA)',start:'2025-05-15',dose:'1정 (1000mg)'},
+    {name:'비타민D3 2000IU',start:'2025-05-15',dose:'1정 (2000IU)'},
+  ];
+  presets.forEach(p=>{
+    if(!diary.find(d=>d.name===p.name)){
+      diary.push({id:Date.now()+Math.random(),name:p.name,start:p.start,dose:p.dose,added:new Date().toISOString()});
+    }
+  });
+  saveDiary(diary);
+  renderDiaryList();
+  // 효과 검증 수치도 채우기 (2024→2025 비교)
+  document.getElementById('be_LDL').value=116;
+  document.getElementById('af_LDL').value=153;
+  document.getElementById('be_HB').value=12.7;
+  document.getElementById('af_HB').value=13.2;
+  document.getElementById('be_VD').value='';
+  document.getElementById('af_VD').value='';
+}
+
+function loadRealSampleCompare(){
+  document.getElementById('be_LDL').value=116;
+  document.getElementById('af_LDL').value=153;
+  document.getElementById('be_HB').value=12.7;
+  document.getElementById('af_HB').value=13.2;
+  document.getElementById('be_VD').value='';
+  document.getElementById('af_VD').value='';
+  runCompare();
 }
 
 // ═══════════════════════════════════════════════════════
