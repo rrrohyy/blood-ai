@@ -746,6 +746,9 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
       </div>
     </div>
   </div>
+
+  <!-- 맞춤 분석 결과 (analyzeFromHistory 호출 시 렌더링) -->
+  <div id="pdf_full_result" style="display:none;margin-top:20px"></div>
 </div>
 
 <style>
@@ -1237,24 +1240,27 @@ async function runMy(){
   // API 호출 → 실패 시 클라이언트 룰 폴백
   let recs=null;
   let apiUsed=false;
-  const apiResult=await DataStore.getRecommendations(mk,conds,{
-    sleep:ctx.sleep,stress:ctx.str,bf:ctx.bf,lm:ctx.lm,ex:ctx.ex
-  });
-  if(apiResult&&apiResult.items&&apiResult.items.length){
-    apiUsed=true;
-    recs=apiResult.items.map((it,i)=>({
-      r:i+1, type:it.type, icon:it.icon, name:it.name,
-      final:it.score, why:it.reason,
-      scores:{
-        biomarker:it.biomarker_fit,
-        nutrition:+(it.biomarker_fit*.85).toFixed(2),
-        context:it.context_score,
-        preference:.80, adherence:.72
-      },
-      suppData:SUPPS.find(s=>s.name===it.name||it.name.includes(s.name.split(' ')[0]))
-    }));
-  } else {
-    recs=recommend(mk,conds,ctx);
+  try {
+    const apiResult=await DataStore.getRecommendations(mk,conds,{
+      sleep:ctx.sleep,stress:ctx.str,bf:ctx.bf,lm:ctx.lm,ex:ctx.ex
+    });
+    if(apiResult&&apiResult.items&&apiResult.items.length){
+      apiUsed=true;
+      recs=apiResult.items.map((it,i)=>({
+        r:i+1, type:it.type, icon:it.icon, name:it.name,
+        final:it.score, why:it.reason,
+        scores:{
+          biomarker:it.biomarker_fit,
+          nutrition:+(it.biomarker_fit*.85).toFixed(2),
+          context:it.context_score,
+          preference:.80, adherence:.72
+        },
+        suppData:SUPPS.find(s=>s.name===it.name||it.name.includes(s.name.split(' ')[0]))
+      }));
+    }
+  } catch(e){ /* API 실패 → 로컬 폴백 */ }
+  if(!recs){
+    try { recs=recommend(mk,conds,ctx); } catch(e){ recs=[]; }
   }
   // safety flags
   const flags=[];
@@ -2243,19 +2249,102 @@ function toggleMarker(k){
   renderPdfTrendChart();
 }
 
-function analyzeFromHistory(){
+async function analyzeFromHistory(){
   if(!pdfHistory.length){ alert('PDF 이력이 없습니다.'); return; }
-  // 가장 최근 이력 (날짜 기준 내림차순 정렬 후 첫 번째)
-  const latest=[...pdfHistory].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const sorted=[...pdfHistory].sort((a,b)=>b.date.localeCompare(a.date));
+  const latest=sorted[0];
   const extracted=latest.markers||latest.extracted||{};
+
+  // in_* 필드에도 동기화 (내 수치 분석 탭 연동)
   const map={LDL:'in_LDL',HDL:'in_HDL',TG:'in_TG',GLUCOSE:'in_GL',VITD:'in_VD',HB:'in_HB',FERRITIN:'in_FE',ALT:'in_ALT',CR:'in_CR',TSH:'in_TSH',URIC:'in_URIC'};
-  let filled=0;
   Object.entries(map).forEach(([from,to])=>{
     const el=document.getElementById(to);
-    if(el && extracted[from]!==undefined){ el.value=extracted[from]; el.classList.add('hv'); filled++; }
+    if(el && extracted[from]!==undefined){ el.value=extracted[from]; el.classList.add('hv'); }
   });
-  goTab('mydata');
-  setTimeout(()=>{ if(filled>0) runMy(); },300);
+
+  // PDF 탭 내 결과 영역에 렌더링
+  const resultEl=document.getElementById('pdf_full_result');
+  resultEl.style.display='block';
+  resultEl.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--gr)"><div style="font-size:32px;margin-bottom:12px">⏳</div><div style="font-size:14px">분석 중... (최대 8초)</div></div>`;
+  resultEl.scrollIntoView({behavior:'smooth',block:'start'});
+
+  // 마커 정규화 (key alias 처리)
+  const mk={
+    LDL:extracted.LDL??null, HDL:extracted.HDL??null,
+    TG:extracted.TG??null, GL:extracted.GLUCOSE??extracted.GL??null,
+    VD:extracted.VITD??extracted.VD??null, HB:extracted.HB??null,
+    FE:extracted.FERRITIN??extracted.FE??null, ALT:extracted.ALT??null,
+    CR:extracted.CR??null, TSH:extracted.TSH??null, URIC:extracted.URIC??null,
+  };
+  const conds=getConds();
+  const ctx=getCtx();
+  const bio=bioArea(mk);
+
+  // API 호출 → 실패 시 로컬 폴백
+  let recs=null, apiUsed=false;
+  try {
+    const apiResult=await DataStore.getRecommendations(mk,conds,{sleep:ctx.sleep,stress:ctx.str,bf:ctx.bf,lm:ctx.lm,ex:ctx.ex});
+    if(apiResult&&apiResult.items&&apiResult.items.length){
+      apiUsed=true;
+      recs=apiResult.items.map((it,i)=>({
+        r:i+1,type:it.type,icon:it.icon,name:it.name,
+        final:it.score,why:it.reason,
+        scores:{biomarker:it.biomarker_fit,nutrition:+(it.biomarker_fit*.85).toFixed(2),context:it.context_score,preference:.80,adherence:.72},
+        suppData:SUPPS.find(s=>s.name===it.name||it.name.includes(s.name.split(' ')[0]))
+      }));
+    }
+  } catch(e){}
+  if(!recs){ try{ recs=recommend(mk,conds,ctx); }catch(e){ recs=[]; } }
+
+  // 안전 플래그
+  const flags=[];
+  if((mk.AL||0)>=120)flags.push({t:'danger',m:'ALT 위험 수준 — 영양제 추천 제한'});
+  if((mk.CR||0)>=1.5)flags.push({t:'danger',m:'크레아티닌 높음 — 신장 기능 이상 가능성'});
+  if((mk.GL||0)>=126)flags.push({t:'warn',m:'공복혈당 126 이상 — 당뇨 기준. 의료진 상담 권고'});
+  if((mk.VD||0)>0&&(mk.VD||99)<=5)flags.push({t:'danger',m:'비타민D 심각 결핍 — 의료진 상담 필수'});
+  if((mk.HB||99)<7)flags.push({t:'danger',m:'헤모글로빈 7 미만 — 즉시 의료진 상담'});
+  if((mk.TSH||0)>4.2)flags.push({t:'warn',m:`TSH ${mk.TSH}μIU/mL — 갑상선 기능저하 초기 의심. 3개월 후 재검 권고`});
+  if((mk.URIC||0)>6.0)flags.push({t:'warn',m:`요산 ${mk.URIC}mg/dL — 여성 기준 초과. 수분 섭취 늘리고 저퓨린 식단 권장`});
+
+  // 목표 달성 explain
+  const explains=[];
+  if(mk.LDL!==null)explains.push({code:'LDL',label:'LDL 콜레스테롤',vals:sorted.map(r=>(r.markers?.LDL??r.extracted?.LDL)).filter(v=>v!==undefined),goal:130,dir:'low',unit:'mg/dL'});
+  if(mk.VD!==null)explains.push({code:'VITD',label:'비타민D',vals:sorted.map(r=>(r.markers?.VITD??r.extracted?.VITD??r.markers?.VD)).filter(v=>v!==undefined),goal:40,dir:'high',unit:'ng/mL'});
+  if(mk.HB!==null)explains.push({code:'HB',label:'헤모글로빈',vals:sorted.map(r=>(r.markers?.HB??r.extracted?.HB)).filter(v=>v!==undefined),goal:14,dir:'high',unit:'g/dL'});
+
+  const validMk=Object.fromEntries(Object.entries(mk).filter(([,v])=>v!==null));
+  const dateStr=latest.date||'최신';
+
+  resultEl.innerHTML=`
+    <div style="border-bottom:2px solid var(--teal);margin-bottom:16px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:16px;font-weight:700;color:var(--td)">📊 맞춤 분석 결과 <span style="font-size:13px;color:var(--gr);font-weight:400">— ${dateStr} 기준</span></div>
+      <span class="pill" style="background:${apiUsed?'#E8F5E9':'#F5F5F5'};color:${apiUsed?'#2E7D32':'#757575'}">${apiUsed?'🟢 Python API':'⚪ 로컬 룰'}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div class="card fi-an">
+          <div class="ch"><span class="ico">🔬</span><h3>최신 혈액검사 수치</h3><span class="sub">${dateStr}</span></div>
+          <div class="cb">
+            <div class="bm-grid" id="pdf_res_bm"></div>
+            ${flags.map(f=>`<div class="alert ${f.t}" style="margin-top:8px">${f.m}</div>`).join('')||(flags.length===0?'<div class="alert safe" style="margin-top:8px">✅ 위험 수치 없음</div>':'')}
+          </div>
+        </div>
+        <div class="card fi-an">
+          <div class="ch"><span class="ico">🎯</span><h3>목표 달성 현황</h3><span class="sub">Explainability</span></div>
+          <div class="cb" id="pdf_res_explain"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card fi-an">
+          <div class="ch"><span class="ico">✨</span><h3>개인 맞춤 추천</h3><span class="sub">Top-5 · MMR</span></div>
+          <div class="cb"><div class="rec-list" id="pdf_res_rec"></div></div>
+        </div>
+      </div>
+    </div>`;
+
+  renderBM(validMk,null,'pdf_res_bm');
+  renderExplain(explains,'pdf_res_explain');
+  renderRecs(recs,'pdf_res_rec');
 }
 
 function renderPdfTrendChart(){
