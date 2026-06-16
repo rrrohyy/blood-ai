@@ -161,6 +161,7 @@ const DataStore = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ markers, conditions, context, top_k: 5 }),
+        signal: AbortSignal.timeout(8000),
       });
       if (!res.ok) return null;
       return await res.json();

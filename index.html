@@ -1228,6 +1228,9 @@ async function runMy(){
   const conds=getConds(),ctx=getCtx();
   const bio=bioArea(mk);
 
+  // 로딩 표시
+  document.getElementById('my_result').innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--gr)"><div style="font-size:32px;margin-bottom:12px">⏳</div><div style="font-size:14px">분석 중...</div><div style="font-size:12px;margin-top:6px;opacity:.7">API 연결 확인 중 (최대 8초)</div></div>`;
+
   // API 호출 → 실패 시 클라이언트 룰 폴백
   let recs=null;
   let apiUsed=false;
@@ -1292,8 +1295,8 @@ function runChecker(){
   const results=sel.map(s=>{
     const need=bio[s.area]||0;
     let verdict,cls,ico;
-    if(need>=0.5){verdict='필요';cls='green';ico='✅';}
-    else if(need>=0.2){verdict='보통';cls='amber';ico='🟡';}
+    if(need>=0.4){verdict='필요';cls='green';ico='✅';}
+    else if(need>=0.12){verdict='보통';cls='amber';ico='🟡';}
     else{verdict='불필요';cls='red';ico='❌';}
     return{...s,need,verdict,cls,ico};
   });
