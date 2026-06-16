@@ -2357,19 +2357,16 @@ function loadRealSamplePdf(){
 // ── PDF → 내 수치 분석 자동 연동 ──────────────────────
 function fillMyDataFromPdf(){
   if(!pdfParsedData){ alert('먼저 PDF를 업로드해주세요.'); return; }
-  const final={};
-  for(const k of Object.keys(PDF_MARKERS)){
-    const el=document.getElementById('pv_'+k);
-    if(el && el.value!=='') final[k]=parseFloat(el.value);
-  }
+  // DOM 요소가 없을 수 있으므로 pdfParsedData.extracted에서 직접 읽음
+  const extracted = pdfParsedData.extracted || {};
   const map={LDL:'in_LDL',HDL:'in_HDL',TG:'in_TG',GLUCOSE:'in_GL',VITD:'in_VD',HB:'in_HB',FERRITIN:'in_FE',ALT:'in_ALT',CR:'in_CR',TSH:'in_TSH',URIC:'in_URIC'};
   let filled=0;
   Object.entries(map).forEach(([from,to])=>{
     const el=document.getElementById(to);
-    if(el && final[from]!==undefined){ el.value=final[from]; el.classList.add('hv'); filled++; }
+    if(el && extracted[from]!==undefined){ el.value=extracted[from]; el.classList.add('hv'); filled++; }
   });
   goTab('mydata');
-  setTimeout(()=>{ alert(`✅ ${filled}개 수치가 내 수치 분석 탭에 입력되었습니다.\n분석 시작 버튼을 눌러주세요.`); }, 200);
+  setTimeout(()=>{ if(filled>0) runMy(); }, 300);
 }
 
 // ── 탭 진입 시 초기화 ─────────────────────────────────
