@@ -227,103 +227,31 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
 
 <div class="tabs-outer">
   <div class="tabs-wrap">
-    <div class="tab active" onclick="goTab('demo1')" id="t_demo1"><div class="av av-m">김</div> 데모 (김건강)</div>
-    <div class="tab" onclick="goTab('demo2')" id="t_demo2"><div class="av av-f">이</div> 데모 (이웰니스)</div>
-    <div class="tab" onclick="goTab('demo3')" id="t_demo3"><div class="av av-t">R</div> 실제 샘플</div>
+    <div class="tab active" onclick="goTab('demo3')" id="t_demo3"><div class="av av-t">S</div> 케이스 샘플</div>
     <div class="tab" onclick="goTab('mydata')" id="t_mydata">✏️ 내 수치 분석</div>
+    <div class="tab" onclick="goTab('pdfparse')" id="t_pdfparse">📄 PDF 파싱</div>
     <div class="tab" onclick="goTab('checker')" id="t_checker">💊 영양제 점검</div>
     <div class="tab" onclick="goTab('diary')" id="t_diary">📋 복약 일지</div>
-    <div class="tab" onclick="goTab('b2b')" id="t_b2b">🏢 B2B 팀 리포트</div>
     <div class="tab" onclick="goTab('food')" id="t_food">🍱 식단 분석</div>
-    <div class="tab" onclick="goTab('pdfparse')" id="t_pdfparse">📄 PDF 파싱</div>
+    <div class="tab" onclick="goTab('b2b')" id="t_b2b">🏢 B2B 리포트</div>
   </div>
 </div>
 
-<!-- ═══════════════ DEMO 1 ═══════════════ -->
-<div class="page active" id="p_demo1">
-  <div style="display:grid;grid-template-columns:340px 1fr;gap:20px;">
-    <div>
-      <div class="card">
-        <div class="ch"><span class="ico">🔬</span><h3>최신 혈액검사</h3><span class="sub">2026-06-01 · 강남 건강검진</span></div>
-        <div class="cb">
-          <div class="bm-grid" id="d1_bm"></div>
-          <div class="alert warn" style="margin-top:12px">⚠️ 고혈압 약물 복용 중 — 오메가3 고용량 추천 제한 적용</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ico">📈</span><h3>수치 추이 (3회)</h3></div>
-        <div class="cb"><div class="chart-wrap"><canvas id="d1_chart"></canvas></div></div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ico">🎯</span><h3>목표 달성 현황</h3><span class="sub">Explainability</span></div>
-        <div class="cb" id="d1_explain"></div>
-      </div>
-    </div>
-    <div>
-      <div class="card">
-        <div class="ch"><span class="ico">⚙️</span><h3>5-Layer Hybrid Algorithm</h3></div>
-        <div class="cb" style="padding-bottom:14px">
-          <div class="layers">
-            <div class="li" style="background:#FFEBEE"><span class="ln">L1</span>Safety<br>Guardrail<span class="lp">우선차단</span></div>
-            <div class="li" style="background:#FFF3E0"><span class="ln">L2</span>Biomarker<br>Scoring<span class="lp">35%</span></div>
-            <div class="li" style="background:#E8F5E9"><span class="ln">L3</span>Content<br>Matching<span class="lp">25%</span></div>
-            <div class="li" style="background:#E3F2FD"><span class="ln">L4</span>Contextual<br>Scoring<span class="lp">20%</span></div>
-            <div class="li" style="background:#F3E5F5"><span class="ln">L5</span>MMR<br>Reranker<span class="lp">15%</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ico">✨</span><h3>개인 맞춤 추천</h3><span class="sub">Top-5 · MMR</span></div>
-        <div class="cb"><div class="rec-list" id="d1_rec"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ DEMO 2 ═══════════════ -->
-<div class="page" id="p_demo2">
-  <div style="display:grid;grid-template-columns:340px 1fr;gap:20px;">
-    <div>
-      <div class="card">
-        <div class="ch"><span class="ico">🔬</span><h3>최신 혈액검사</h3><span class="sub">2026-05-20 · 서울아산병원</span></div>
-        <div class="cb">
-          <div class="bm-grid" id="d2_bm"></div>
-          <div class="alert danger" style="margin-top:12px">🚨 비타민D 9ng/mL — 심각 결핍. 고용량 보충 전 의료진 상담 필수</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ico">🎯</span><h3>목표 달성 현황</h3></div>
-        <div class="cb" id="d2_explain"></div>
-      </div>
-    </div>
-    <div>
-      <div class="card">
-        <div class="ch"><span class="ico">✨</span><h3>개인 맞춤 추천</h3><span class="sub">Top-5 · MMR</span></div>
-        <div class="cb"><div class="rec-list" id="d2_rec"></div></div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ico">🛒</span><h3>추천 제품</h3><span class="sub">효과 검증 기반</span></div>
-        <div class="cb"><div class="g3" id="d2_prod"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ DEMO 3 (실제 샘플) ═══════════════ -->
-<div class="page" id="p_demo3">
+<!-- ═══════════════ DEMO 3 (케이스 샘플) ═══════════════ -->
+<div class="page active" id="p_demo3">
   <div class="alert danger" style="margin-bottom:16px;border-radius:12px;padding:14px 18px">
-    🚨 <b>이상지질혈증(진료)</b> — LDL 153mg/dL, 총콜레스테롤 257mg/dL. 동맥경화·심혈관계 질환 의심으로 치료 권고
+    🚨 <b>이상지질혈증(진료)</b> — LDL 161mg/dL, 총콜레스테롤 263mg/dL. 동맥경화·심혈관계 질환 의심으로 치료 권고
   </div>
   <div style="display:grid;grid-template-columns:380px 1fr;gap:20px;">
     <div>
       <div class="card">
-        <div class="ch"><span class="ico">🔬</span><h3>최신 혈액검사 결과</h3><span class="sub">2025-05-09</span></div>
+        <div class="ch"><span class="ico">🔬</span><h3>최신 혈액검사 결과</h3><span class="sub">2025-11-18</span></div>
         <div class="cb">
           <div class="bm-grid" id="d3_bm"></div>
         </div>
       </div>
       <div class="card">
-        <div class="ch"><span class="ico">📈</span><h3>4회 검사 추이</h3><span class="sub">2021 → 2022 → 2024 → 2025</span></div>
+        <div class="ch"><span class="ico">📈</span><h3>4회 검사 추이</h3><span class="sub">2021 → 2023 → 2024 → 2025</span></div>
         <div class="cb"><div class="chart-wrap"><canvas id="d3_chart"></canvas></div></div>
       </div>
       <div class="card">
@@ -339,30 +267,30 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
             <div>
               <div style="font-size:12px;color:var(--gr);margin-bottom:4px">LDL 콜레스테롤 추이</div>
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <span style="font-size:13px;color:var(--gr)">128</span>
+                <span style="font-size:13px;color:var(--gr)">131</span>
                 <span style="color:var(--gr)">→</span>
-                <span style="font-size:13px;color:var(--gr)">119</span>
+                <span style="font-size:13px;color:var(--gr)">142</span>
                 <span style="color:var(--gr)">→</span>
-                <span style="font-size:13px;color:var(--gr)">116</span>
+                <span style="font-size:13px;color:var(--gr)">148</span>
                 <span style="color:var(--gr)">→</span>
-                <span style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C62828">153</span>
-                <span class="pill red">+37↑</span>
+                <span style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C62828">161</span>
+                <span class="pill red">+13↑</span>
               </div>
-              <div style="font-size:11px;color:#C62828;margin-top:4px">⚠️ 2024→2025 1년 사이 37mg/dL 급등</div>
+              <div style="font-size:11px;color:#C62828;margin-top:4px">⚠️ 2024→2025 1년 사이 13mg/dL 급등</div>
             </div>
             <div>
               <div style="font-size:12px;color:var(--gr);margin-bottom:4px">총콜레스테롤 추이</div>
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <span style="font-size:13px;color:var(--gr)">226</span>
+                <span style="font-size:13px;color:var(--gr)">220</span>
                 <span style="color:var(--gr)">→</span>
-                <span style="font-size:13px;color:var(--gr)">221</span>
+                <span style="font-size:13px;color:var(--gr)">238</span>
                 <span style="color:var(--gr)">→</span>
-                <span style="font-size:13px;color:var(--gr)">217</span>
+                <span style="font-size:13px;color:var(--gr)">245</span>
                 <span style="color:var(--gr)">→</span>
-                <span style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C62828">257</span>
-                <span class="pill red">+40↑</span>
+                <span style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C62828">263</span>
+                <span class="pill red">+18↑</span>
               </div>
-              <div style="font-size:11px;color:#C62828;margin-top:4px">⚠️ 정상(200) 대비 57mg/dL 초과</div>
+              <div style="font-size:11px;color:#C62828;margin-top:4px">⚠️ 정상(200) 대비 63mg/dL 초과</div>
             </div>
             <div>
               <div style="font-size:12px;color:var(--gr);margin-bottom:4px">HDL 콜레스테롤</div>
@@ -723,7 +651,7 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
           <div id="pdf_history_list">
             <div class="empty"><div class="ei">📄</div><p>PDF를 업로드하면<br>여기에 이력이 쌓입니다</p></div>
           </div>
-          <button class="btn btn-out btn-sm" style="margin-top:10px" onclick="loadRealSamplePdf()">🧪 실제 샘플 데이터 불러오기 (노윤영)</button>
+          <button class="btn btn-out btn-sm" style="margin-top:10px" onclick="loadRealSamplePdf()">🧪 케이스 샘플 데이터 불러오기 (이서현)</button>
           <button class="btn btn-red btn-sm" style="margin-top:6px;margin-left:6px" onclick="clearPdfHistory()">🗑️ 이력 초기화</button>
         </div>
       </div>
@@ -1095,7 +1023,7 @@ function renderProds(indices,id){
 // ═══════════════════════════════════════════════════════
 //  TAB CONTROL
 // ═══════════════════════════════════════════════════════
-const TABS=['demo1','demo2','demo3','mydata','checker','diary','b2b','food','pdfparse'];
+const TABS=['demo3','mydata','pdfparse','checker','diary','food','b2b'];
 function goTab(id){
   TABS.forEach(t=>{
     document.getElementById('t_'+t).classList.toggle('active',t===id);
@@ -1108,16 +1036,16 @@ function goTab(id){
 // ═══════════════════════════════════════════════════════
 const D3={
   tests:[
-    {date:'2021-11',markers:{LDL:128,HDL:79,TG:93,ALT:15,HB:13.2,CR:0.70,URIC:6.2}},
-    {date:'2022-12',markers:{LDL:119,HDL:80,TG:111,ALT:19,HB:12.2,CR:0.60,GLUCOSE:89,VITD:11.1,TSH:2.34,URIC:5.4}},
-    {date:'2024-04',markers:{LDL:116,HDL:78,TG:113,ALT:18,HB:12.7,CR:0.80,GLUCOSE:93,URIC:6.1}},
-    {date:'2025-05',markers:{LDL:153,HDL:79,TG:124,ALT:14,HB:13.2,CR:0.81,GLUCOSE:98,VITD:9.3,TSH:4.54,URIC:6.8}},
+    {date:'2021-09',markers:{LDL:131,HDL:71,TG:98,TC:220,ALT:22,HB:13.5,CR:0.72,URIC:6.5}},
+    {date:'2023-03',markers:{LDL:142,HDL:68,TG:119,TC:238,ALT:19,HB:12.1,CR:0.74,GLUCOSE:96,VITD:12.3,TSH:2.81,URIC:6.8}},
+    {date:'2024-06',markers:{LDL:148,HDL:70,TG:128,TC:245,ALT:21,HB:12.8,CR:0.77,GLUCOSE:98,URIC:6.9}},
+    {date:'2025-11',markers:{LDL:161,HDL:68,TG:142,TC:263,ALT:16,HB:12.8,CR:0.79,GLUCOSE:101,VITD:7.8,TSH:5.12,URIC:7.2}},
   ],
   explains:[
-    {code:'LDL',label:'LDL 콜레스테롤',vals:[128,119,116,153],goal:130,dir:'low',unit:'mg/dL'},
-    {code:'TG',label:'중성지방',vals:[93,111,113,124],goal:150,dir:'low',unit:'mg/dL'},
-    {code:'HB',label:'헤모글로빈',vals:[13.2,12.2,12.7,13.2],goal:14,dir:'high',unit:'g/dL'},
-    {code:'VITD',label:'비타민D',vals:[11.1,9.3],goal:40,dir:'high',unit:'ng/mL'},
+    {code:'LDL',label:'LDL 콜레스테롤',vals:[131,142,148,161],goal:130,dir:'low',unit:'mg/dL'},
+    {code:'TG',label:'중성지방',vals:[98,119,128,142],goal:150,dir:'low',unit:'mg/dL'},
+    {code:'HB',label:'헤모글로빈',vals:[13.5,12.1,12.8,12.8],goal:14,dir:'high',unit:'g/dL'},
+    {code:'VITD',label:'비타민D',vals:[12.3,7.8],goal:40,dir:'high',unit:'ng/mL'},
   ],
 };
 
@@ -1487,10 +1415,10 @@ function analyzeFoodSel(){
 // ═══════════════════════════════════════════════════════
 //  실제 샘플 불러오기 함수들
 // ═══════════════════════════════════════════════════════
-const REAL={LDL:153,HDL:79,TG:124,HB:13.2,ALT:14,CR:0.81};
+const REAL={LDL:161,HDL:68,TG:142,HB:12.8,ALT:16,CR:0.79,GLUCOSE:101,VITD:7.8,TSH:5.12,URIC:7.2};
 
 function loadRealSampleMy(){
-  const map={in_LDL:153,in_HDL:79,in_TG:124,in_GL:98,in_VD:9.3,in_HB:13.2,in_ALT:14,in_CR:0.81,in_TSH:4.54,in_URIC:6.8};
+  const map={in_LDL:161,in_HDL:68,in_TG:142,in_GL:101,in_VD:7.8,in_HB:12.8,in_ALT:16,in_CR:0.79,in_TSH:5.12,in_URIC:7.2};
   Object.entries(map).forEach(([id,v])=>{const el=document.getElementById(id);if(el){el.value=v;el.classList.add('hv');}});
   // 슬라이더도 실제 생활 맥락 추정값으로
   document.getElementById('sl_sleep').value=6.5; ctxV('sleep','6.5');
@@ -1503,7 +1431,7 @@ function loadRealSampleMy(){
 
 function loadRealSampleChecker(){
   // 혈액 수치 채우기
-  const mkMap={ck_LDL:153,ck_HDL:79,ck_VD:null,ck_HB:13.2,ck_GL:null,ck_CR:0.81};
+  const mkMap={ck_LDL:161,ck_HDL:68,ck_VD:7.8,ck_HB:12.8,ck_GL:101,ck_CR:0.79};
   Object.entries(mkMap).forEach(([id,v])=>{const el=document.getElementById(id);if(el&&v!==null){el.value=v;el.classList.add('hv');}});
   // LDL 높으니까 오메가3·CoQ10 선택, 혈색소 낮으니 철분도 체크
   [2,7,4].forEach(sid=>{
@@ -1518,8 +1446,8 @@ function loadRealSampleDiary(){
   // 실제 샘플 기준 복약 기록 추가 (LDL 높아서 오메가3, 헤모글로빈 낮아서 철분)
   const diary=getDiary();
   const presets=[
-    {name:'오메가3 (EPA/DHA)',start:'2025-05-15',dose:'1정 (1000mg)'},
-    {name:'비타민D3 2000IU',start:'2025-05-15',dose:'1정 (2000IU)'},
+    {name:'오메가3 (EPA/DHA)',start:'2025-11-20',dose:'1정 (1000mg)'},
+    {name:'비타민D3 2000IU',start:'2025-11-20',dose:'1정 (2000IU)'},
   ];
   presets.forEach(p=>{
     if(!diary.find(d=>d.name===p.name)){
@@ -1529,19 +1457,19 @@ function loadRealSampleDiary(){
   saveDiary(diary);
   renderDiaryList();
   // 효과 검증 수치도 채우기 (2024→2025 비교)
-  document.getElementById('be_LDL').value=116;
-  document.getElementById('af_LDL').value=153;
-  document.getElementById('be_HB').value=12.7;
-  document.getElementById('af_HB').value=13.2;
+  document.getElementById('be_LDL').value=148;
+  document.getElementById('af_LDL').value=161;
+  document.getElementById('be_HB').value=12.8;
+  document.getElementById('af_HB').value=12.8;
   document.getElementById('be_VD').value='';
   document.getElementById('af_VD').value='';
 }
 
 function loadRealSampleCompare(){
-  document.getElementById('be_LDL').value=116;
-  document.getElementById('af_LDL').value=153;
-  document.getElementById('be_HB').value=12.7;
-  document.getElementById('af_HB').value=13.2;
+  document.getElementById('be_LDL').value=148;
+  document.getElementById('af_LDL').value=161;
+  document.getElementById('be_HB').value=12.8;
+  document.getElementById('af_HB').value=12.8;
   document.getElementById('be_VD').value='';
   document.getElementById('af_VD').value='';
   runCompare();
@@ -1550,8 +1478,6 @@ function loadRealSampleCompare(){
 // ═══════════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════════
-initDemo1();
-initDemo2();
 initDemo3();
 initChecker();
 initFoodGrid();
@@ -1573,9 +1499,9 @@ function initDemo3(){
   });
 }
 
-// 내 수치 분석 폼 기본값 채우기 (실제 검진 수치)
+// 내 수치 분석 폼 기본값 채우기 (케이스 샘플 수치)
 (function prefillMyForm(){
-  const defaults={in_LDL:153,in_HDL:79,in_TG:124,in_GL:98,in_VD:9.3,in_HB:13.2,in_ALT:14,in_CR:0.81,in_TSH:4.54,in_URIC:6.8};
+  const defaults={in_LDL:161,in_HDL:68,in_TG:142,in_GL:101,in_VD:7.8,in_HB:12.8,in_ALT:16,in_CR:0.79,in_TSH:5.12,in_URIC:7.2};
   Object.entries(defaults).forEach(([id,v])=>{
     const el=document.getElementById(id);
     if(el){el.value=v;el.classList.add('hv');}
@@ -1978,18 +1904,18 @@ function resetPdfParser(){
   document.getElementById('pdf_file_input').value='';
 }
 
-// ── 실제 샘플 불러오기 (노윤영 4개년 데이터) ──────────
+// ── 케이스 샘플 불러오기 (이서현 4개년 데이터) ──────────
 function loadRealSamplePdf(){
-  if(!confirm('노윤영 실제 검진 데이터 4개 시점을 이력에 추가할까요?\n(기존 이력은 유지됩니다)')) return;
+  if(!confirm('이서현(케이스 샘플) 검진 데이터 4개 시점을 이력에 추가할까요?\n(기존 이력은 유지됩니다)')) return;
   const samples=[
-    {id:1001,vendor:'GC 녹십자아이메드',date:'2022-12-30',fileName:'01_20221230-213-0211.pdf',
-     markers:{LDL:119,HDL:80,TG:111,TC:221,GLUCOSE:89,VITD:11.1,TSH:2.34,HB:12.2,FERRITIN:65,ALT:19,AST:23,CR:0.6,EGFR:118,URIC:5.4,WBC:3.73}},
-    {id:1002,vendor:'하나로 의료재단',date:'2021-11-12',fileName:'하나로_2021.pdf',
-     markers:{LDL:128,HDL:79,TG:93,TC:226,GLUCOSE:82,VITD:null,HB:13.2,ALT:15,AST:21,CR:0.70,EGFR:100,URIC:6.2,WBC:4.02}},
-    {id:1003,vendor:'하나로 의료재단',date:'2024-04-22',fileName:'하나로_2024.pdf',
-     markers:{LDL:116,HDL:78,TG:113,TC:217,GLUCOSE:93,VITD:null,HB:12.7,ALT:18,AST:23,CR:0.80,EGFR:99,URIC:6.1,WBC:4.16}},
-    {id:1004,vendor:'하나로 의료재단',date:'2025-05-09',fileName:'노윤영(F)_010271793.pdf',
-     markers:{LDL:153,HDL:79,TG:124,TC:257,GLUCOSE:98,VITD:9.3,TSH:4.54,HB:13.2,ALT:14,AST:21,CR:0.81,EGFR:97,URIC:6.8,WBC:5.07}},
+    {id:1001,vendor:'하나로 의료재단',date:'2021-09-15',fileName:'sample_하나로_2021-09.pdf',
+     markers:{LDL:131,HDL:71,TG:98,TC:220,HB:13.5,FERRITIN:42,ALT:22,CR:0.72,EGFR:88,URIC:6.5,WBC:4.5}},
+    {id:1002,vendor:'GC 녹십자아이메드',date:'2023-03-22',fileName:'sample_GC녹십자_2023-03.pdf',
+     markers:{LDL:142,HDL:68,TG:119,TC:238,GLUCOSE:96,VITD:12.3,TSH:2.81,HB:12.1,FERRITIN:28,ALT:19,CR:0.74,EGFR:85,URIC:6.8,WBC:4.2}},
+    {id:1003,vendor:'하나로 의료재단',date:'2024-06-10',fileName:'sample_하나로_2024-06.pdf',
+     markers:{LDL:148,HDL:70,TG:128,TC:245,GLUCOSE:98,HB:12.8,FERRITIN:19,ALT:21,CR:0.77,EGFR:82,URIC:6.9,WBC:4.8}},
+    {id:1004,vendor:'하나로 의료재단',date:'2025-11-18',fileName:'sample_하나로_2025-11.pdf',
+     markers:{LDL:161,HDL:68,TG:142,TC:263,GLUCOSE:101,VITD:7.8,TSH:5.12,HB:12.8,FERRITIN:14,ALT:16,CR:0.79,EGFR:80,URIC:7.2,WBC:5.1}},
   ];
   samples.forEach(s=>{
     if(!pdfHistory.find(r=>r.date===s.date)){
