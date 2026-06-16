@@ -1499,9 +1499,9 @@ const SAMPLE_MENU={
 };
 
 function seedMenuIfEmpty(){
-  const data=getMenuData();
-  if(Object.keys(data).length===0){
+  if(!localStorage.getItem('blood_ai_menu_v1')){
     saveMenuData(SAMPLE_MENU);
+    localStorage.setItem('blood_ai_menu_v1','1');
   }
 }
 
