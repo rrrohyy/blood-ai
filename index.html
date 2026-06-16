@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>blood.ai — 혈액검사 기반 맞춤 건강 추천</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
 :root{--teal:#00897B;--td:#00695C;--tp:#F0FDFA;--tl:#E0F2F1;--bk:#212121;--gr:#546E7A;--gl:#ECEFF1;--bg:#F0F4F5;--rl:#FFEBEE;--al:#FFF8E1;--grl:#E8F5E9;}
@@ -625,7 +626,7 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
       <div>
         <div class="card">
           <div class="ch"><span class="ico">📆</span><h3>등록된 메뉴 목록</h3>
-            <button class="btn btn-red btn-sm" style="margin-left:auto" onclick="if(confirm('전체 메뉴를 삭제할까요?')){localStorage.removeItem('blood_ai_menu');renderMenuList();}">전체 삭제</button>
+            <button class="btn btn-red btn-sm" style="margin-left:auto" onclick="if(confirm('전체 메뉴를 삭제할까요?')){DataStore.clearAllMenus();renderMenuList();}">전체 삭제</button>
           </div>
           <div class="cb" id="food_menu_list">
             <div class="empty" style="padding:20px 0"><div class="ei">📅</div><p>등록된 메뉴가 없어요</p></div>
@@ -1264,22 +1265,18 @@ function runChecker(){
 // ═══════════════════════════════════════════════════════
 //  DIARY PAGE
 // ═══════════════════════════════════════════════════════
-function getDiary(){return JSON.parse(localStorage.getItem('blood_ai_diary')||'[]');}
-function saveDiary(d){localStorage.setItem('blood_ai_diary',JSON.stringify(d));}
 function addDiary(){
   const name=document.getElementById('diary_supp').value;
   const start=document.getElementById('diary_start').value;
   const dose=document.getElementById('diary_dose').value;
   if(!name){alert('영양제를 선택해주세요.');return;}
-  const diary=getDiary();
-  diary.push({id:Date.now(),name,start,dose,added:new Date().toISOString()});
-  saveDiary(diary);renderDiaryList();
+  DataStore.addDiaryEntry(name,start,dose);renderDiaryList();
 }
 function delDiary(id){
-  saveDiary(getDiary().filter(d=>d.id!==id));renderDiaryList();
+  DataStore.deleteDiaryEntry(id);renderDiaryList();
 }
 function renderDiaryList(){
-  const diary=getDiary();
+  const diary=DataStore.getDiary();
   document.getElementById('diary_count').textContent=diary.length+'개 복용 중';
   if(!diary.length){document.getElementById('diary_list').innerHTML='<div class="empty"><div class="ei">📋</div><p>복약 기록이 없습니다<br>왼쪽에서 추가해주세요</p></div>';return;}
   const today=new Date();
@@ -1441,10 +1438,8 @@ function loadMockB2B(){
 let foodMk={};  // 연동된 혈액 수치
 let menuCourseCount=1;  // 관리 모드 코스 입력 카운터
 
-function getMenuData(){
-  try{return JSON.parse(localStorage.getItem('blood_ai_menu')||'{}');}catch{return {};}
-}
-function saveMenuData(d){localStorage.setItem('blood_ai_menu',JSON.stringify(d));}
+function getMenuData(){ return DataStore.getMenuData(); }
+function saveMenuData(d){ DataStore.saveMenuData(d); }
 
 function todayStr(){
   const d=new Date();
@@ -1495,10 +1490,7 @@ const SAMPLE_MENU={
 };
 
 function seedMenuIfEmpty(){
-  if(!localStorage.getItem('blood_ai_menu_v2')){
-    saveMenuData(SAMPLE_MENU);
-    localStorage.setItem('blood_ai_menu_v2','1');
-  }
+  DataStore.seedMenuIfNeeded(SAMPLE_MENU);
 }
 
 function initFood(){
@@ -1955,7 +1947,7 @@ const PDF_MARKERS = {
 };
 
 // ── 상태 ──────────────────────────────────────────────
-let pdfHistory = JSON.parse(localStorage.getItem('pdf_history')||'[]');
+let pdfHistory = DataStore.getPdfHistory();
 let pdfParsedData = null;
 let pdfTrendChart = null;
 let pdfActiveMarkers = ['LDL','HDL','VITD','GLUCOSE'];
@@ -2230,11 +2222,11 @@ function renderPdfSummary(){
 }
 
 // ── 유틸리티 ─────────────────────────────────────────
-function savePdfHistory(){ localStorage.setItem('pdf_history',JSON.stringify(pdfHistory)); }
+function savePdfHistory(){ DataStore.savePdfHistory(pdfHistory); }
 
 function deletePdfRecord(id){
-  pdfHistory=pdfHistory.filter(r=>r.id!==id);
-  savePdfHistory(); renderPdfHistory(); renderPdfTrendChart(); renderPdfSummary();
+  pdfHistory=DataStore.deletePdfRecord(id);
+  renderPdfHistory(); renderPdfTrendChart(); renderPdfSummary();
 }
 
 function clearPdfHistory(){
