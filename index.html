@@ -204,6 +204,13 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
 .av-t{background:linear-gradient(135deg,var(--teal),var(--td));}
 @media(max-width:900px){.g3,.g4{grid-template-columns:1fr 1fr;}.food-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.g2,.g3,.g4,.food-grid,.bm-grid{grid-template-columns:1fr;}}
+/* drug detail card */
+.drug-detail{background:#F8FFFE;border:1px solid var(--tl);border-radius:8px;padding:10px 12px;margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.drug-row{display:flex;gap:8px;font-size:11px;line-height:1.5;}
+.drug-row.warn{color:#BF360C;}
+.dr-label{font-weight:600;color:var(--gr);width:70px;flex-shrink:0;}
+.evidence-badge{background:#1565C0;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;}
+.evidence-badge.B{background:#E65100;}.evidence-badge.C{background:#546E7A;}
 </style>
 </head>
 <body>
@@ -544,6 +551,14 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
 
 <!-- ═══════════════ B2B ═══════════════ -->
 <div class="page" id="p_b2b">
+  <div style="background:linear-gradient(135deg,#E3F2FD,#E8F5E9);border-radius:12px;padding:20px 24px;margin-bottom:20px;border:1px solid #B2DFDB">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">🏥 기업 건강검진의 현실</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;font-size:13px">
+      <div>❌ <b>포맷 파편화</b><br><span style="color:var(--gr);font-size:12px">세브란스·KMI·협회 등 업체마다 항목명·단위 다름</span></div>
+      <div>❌ <b>연속성 단절</b><br><span style="color:var(--gr);font-size:12px">검진업체 바뀌면 이전 이력과 비교 불가</span></div>
+      <div>✅ <b>blood.ai 해결</b><br><span style="color:var(--gr);font-size:12px">멀티 업체 데이터 정규화 → 통합 건강 이력 DB</span></div>
+    </div>
+  </div>
   <div class="card">
     <div class="ch"><span class="ico">📂</span><h3>건강검진 데이터 업로드</h3><span class="sub">CSV · Excel</span></div>
     <div class="cb">
@@ -551,6 +566,14 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
         <div class="uz-ico">📊</div>
         <p style="font-weight:600;margin-bottom:4px">CSV 파일을 드래그하거나 클릭하여 업로드</p>
         <p>또는 <span style="color:var(--teal);font-weight:600;text-decoration:underline;cursor:pointer">샘플 데이터 불러오기</span> (네이버 3개 팀 · 24명)</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <span class="pill">세브란스건강검진센터</span>
+        <span class="pill">한국건강관리협회</span>
+        <span class="pill">KMI 한국의학연구소</span>
+        <span class="pill">이지체크</span>
+        <span class="pill">건강iN</span>
+        <span class="pill green">+ 커스텀 매핑 지원</span>
       </div>
     </div>
   </div>
@@ -616,17 +639,25 @@ const BM_META = {
   CR:{name:'크레아티닌',unit:'mg/dL',goal:1.0,dir:'low',st:v=>v>1.5?'caution':v>1.2?'watch':'normal'},
 };
 const ST_LBL={normal:'정상',watch:'경계',caution:'주의'};
-const W={biomarker:.35,nutrition:.25,context:.20,preference:.10,adherence:.10};
+const W={biomarker:.38,nutrition:.22,context:.20,preference:.10,adherence:.10};
 
 const SUPPS=[
-  {id:1,name:'비타민D3 2000IU',icon:'☀️',area:'vitd',risk:[],ing:{vitD:2000},evidence:'A',reason:'비타민D 부족 시 보충을 권장합니다.'},
-  {id:2,name:'오메가3 (EPA/DHA)',icon:'🐠',area:'lipid',risk:['항응고제'],ing:{omega3:1000},evidence:'A',reason:'LDL 관리를 위해 오메가3 보충을 권장합니다.'},
-  {id:3,name:'마그네슘 300mg',icon:'💊',area:'glucose',risk:['신장질환'],ing:{magnesium:300},evidence:'B',reason:'혈당 조절 보조 목적으로 마그네슘을 권장합니다.'},
-  {id:4,name:'철분 18mg',icon:'🔴',area:'iron',risk:[],ing:{iron:18},evidence:'A',reason:'헤모글로빈/페리틴 저하 시 철분 보충을 권장합니다.'},
-  {id:5,name:'비타민C 500mg',icon:'🍋',area:'iron',risk:[],ing:{vitC:500},evidence:'A',reason:'철분 흡수율 향상을 위해 비타민C를 권장합니다.'},
-  {id:6,name:'엽산 400μg',icon:'💚',area:'iron',risk:[],ing:{folate:400},evidence:'A',reason:'철분 흡수 보조 및 빈혈 관리에 엽산을 권장합니다.'},
-  {id:7,name:'코엔자임Q10 100mg',icon:'⚡',area:'lipid',risk:['항응고제'],ing:{coq10:100},evidence:'B',reason:'LDL 관리와 에너지 생산에 CoQ10을 권장합니다.'},
-  {id:8,name:'아연 10mg',icon:'🔷',area:'immune',risk:[],ing:{zinc:10},evidence:'B',reason:'면역 기능 강화를 위한 아연 보충을 권장합니다.'},
+  {id:1,name:'비타민D3 2000IU',icon:'☀️',area:'vitd',risk:[],ing:{vitD:2000},evidence:'A',reason:'비타민D 부족 시 보충을 권장합니다.',
+   dose:'1일 1회 2000IU',timing:'식사와 함께 (지용성)',expect:'8~12주 후 혈중 수치 10~15ng/mL 상승',contraindications:['고칼슘혈증 주의'],interactions:['티아지드계 이뇨제 병용 시 고칼슘혈증 위험'],category:'비타민'},
+  {id:2,name:'오메가3 (EPA/DHA)',icon:'🐠',area:'lipid',risk:['항응고제'],ing:{omega3:1000},evidence:'A',reason:'LDL 관리를 위해 오메가3 보충을 권장합니다.',
+   dose:'1일 2회 1000mg',timing:'식후',expect:'TG 20~30% 감소, LDL 소폭 감소 (8~12주)',contraindications:['수술 전 2주 중단 권고'],interactions:['항응고제(와파린) 병용 시 출혈 위험'],category:'지질관리'},
+  {id:3,name:'마그네슘 300mg',icon:'💊',area:'glucose',risk:['신장질환'],ing:{magnesium:300},evidence:'B',reason:'혈당 조절 보조 목적으로 마그네슘을 권장합니다.',
+   dose:'1일 1회 300mg',timing:'취침 전',expect:'혈당 민감성 개선, 수면 질 향상',contraindications:['신장질환 시 축적 위험'],interactions:['항생제 흡수 방해 가능'],category:'혈당관리'},
+  {id:4,name:'철분 18mg',icon:'🔴',area:'iron',risk:[],ing:{iron:18},evidence:'A',reason:'헤모글로빈/페리틴 저하 시 철분 보충을 권장합니다.',
+   dose:'1일 1~2회 18mg',timing:'공복 (비타민C와 함께)',expect:'헤모글로빈 회복 4~8주',contraindications:['변비·소화불량 가능'],interactions:['칼슘·제산제와 동시 복용 시 흡수 감소'],category:'빈혈'},
+  {id:5,name:'비타민C 500mg',icon:'🍋',area:'iron',risk:[],ing:{vitC:500},evidence:'A',reason:'철분 흡수율 향상을 위해 비타민C를 권장합니다.',
+   dose:'1일 1~2회 500mg',timing:'식후',expect:'철분 흡수율 2~3배 향상',contraindications:['신장결석 병력 시 주의'],interactions:['철분제와 함께 복용 시 흡수 증가 (권장)'],category:'빈혈'},
+  {id:6,name:'엽산 400μg',icon:'💚',area:'iron',risk:[],ing:{folate:400},evidence:'A',reason:'철분 흡수 보조 및 빈혈 관리에 엽산을 권장합니다.',
+   dose:'1일 1회 400μg',timing:'아무 때나',expect:'적혈구 생성 보조',contraindications:[],interactions:['메토트렉세이트 효과 감소'],category:'빈혈'},
+  {id:7,name:'코엔자임Q10 100mg',icon:'⚡',area:'lipid',risk:['항응고제'],ing:{coq10:100},evidence:'B',reason:'LDL 관리와 에너지 생산에 CoQ10을 권장합니다.',
+   dose:'1일 1~2회 100mg',timing:'식후 (지용성)',expect:'스타틴 복용 시 근육통 완화, 심장 기능 보조',contraindications:[],interactions:['항응고제 효과 감소 가능'],category:'지질관리'},
+  {id:8,name:'아연 10mg',icon:'🔷',area:'immune',risk:[],ing:{zinc:10},evidence:'B',reason:'면역 기능 강화를 위한 아연 보충을 권장합니다.',
+   dose:'1일 1회 10mg',timing:'식후',expect:'면역 기능 강화, 상처 회복 촉진',contraindications:['고용량 시 구리 흡수 방해'],interactions:['항생제 흡수 방해'],category:'면역'},
 ];
 
 // 중복 성분 한도 (1일 최대 안전량)
@@ -673,6 +704,17 @@ const B2B_MOCK={
     {name:'닭가슴살 샐러드',icon:'🥗',tags:['저지방','고단백','콜레스테롤'],score:82,forDept:'전체'},
     {name:'렌틸콩 수프',icon:'🫘',tags:['철분','식이섬유','혈당'],score:79,forDept:'개발팀'},
     {name:'연어 포케볼',icon:'🍣',tags:['비타민D','오메가3'],score:91,forDept:'개발팀'},
+  ],
+  multiVendor:[
+    {emp:'김개발 (개발팀)',records:[
+      {vendor:'한국건강관리협회',date:'2022-11',LDL:135,VITD:11,HB:14.2},
+      {vendor:'KMI 한국의학연구소',date:'2023-11',LDL:141,VITD:14,HB:13.8},
+      {vendor:'세브란스건강검진',date:'2024-11',LDL:158,VITD:16,HB:13.5},
+    ],alert:'LDL 3년 연속 상승 (+23) — 즉시 개입 권고'},
+    {emp:'박마케팅 (마케팅팀)',records:[
+      {vendor:'이지체크',date:'2023-04',LDL:118,VITD:9,HB:11.2},
+      {vendor:'세브란스건강검진',date:'2024-04',LDL:122,VITD:12,HB:11.8},
+    ],alert:'비타민D 지속 결핍 + 헤모글로빈 낮음 — 영양 관리 필요'},
   ],
 };
 
@@ -775,10 +817,20 @@ function recommend(mk,conds,ctx){
   const cands=[];
   for(const s of SUPPS){
     if(!suppSafe(s,mk,conds))continue;
-    const bmFit=bio[s.area]||0;
+    let bmFit=bio[s.area]||0;
     if(bmFit<0.12)continue;
+    // 임상 우선순위 배수 적용
+    let clinicalPriority=1.0;
+    if(s.area==='lipid'&&s.name.includes('오메가3')&&(mk.LDL||mk.LDL===0)&&mk.LDL>140)clinicalPriority=1.4;
+    if(s.area==='vitd'&&(mk.VITD||mk.VD||99)<15)clinicalPriority=1.5;
+    if(s.area==='iron'&&s.name.includes('철분')){
+      if((mk.HB||99)<12)clinicalPriority=Math.max(clinicalPriority,1.5);
+      if((mk.FERRITIN||mk.FE||99)<10)clinicalPriority=Math.max(clinicalPriority,1.4);
+    }
+    if(s.area==='glucose'&&(mk.GLUCOSE||mk.GL||0)>110)clinicalPriority=Math.max(clinicalPriority,1.3);
+    bmFit=Math.min(1,bmFit*clinicalPriority);
     const sc={biomarker:bmFit,nutrition:bmFit*.85,context:ctxSc('supplement',ctxN),preference:.80,adherence:.72};
-    cands.push({type:'supplement',icon:s.icon,name:s.name,why:s.reason,scores:sc,final:fs(sc)});
+    cands.push({type:'supplement',icon:s.icon,name:s.name,why:s.reason,scores:sc,final:fs(sc),suppData:s});
   }
   for(const f of FOODS_MASTER){
     const nf=foodFit(f,bio);
@@ -820,8 +872,22 @@ function renderBM(markers,prevMarkers,gridId){
 }
 function renderRecs(recs,id){
   const TL={supplement:'영양제',food:'식품',routine:'생활루틴'};
-  document.getElementById(id).innerHTML=recs.map(r=>`
-    <div class="rec-item fi-an">
+  document.getElementById(id).innerHTML=recs.map(r=>{
+    // supplement이면 SUPPS에서 상세 정보 조회
+    let drugDetailHtml='';
+    if(r.type==='supplement'){
+      const sd=r.suppData||SUPPS.find(s=>s.name===r.name)||SUPPS.find(s=>r.name.includes(s.name.split(' ')[0]));
+      if(sd&&sd.dose){
+        const contraText=sd.contraindications&&sd.contraindications.length?sd.contraindications[0]:'해당 없음';
+        drugDetailHtml=`<div class="drug-detail">
+          <div class="drug-row"><span class="dr-label">💊 복용법</span><span>${sd.dose} · ${sd.timing}</span></div>
+          <div class="drug-row"><span class="dr-label">📈 기대효과</span><span>${sd.expect}</span></div>
+          <div class="drug-row warn"><span class="dr-label">⚠️ 주의</span><span>${contraText}</span></div>
+          <div class="drug-row"><span class="dr-label">🔬 근거등급</span><span class="evidence-badge ${sd.evidence}">${sd.evidence}등급</span></div>
+        </div>`;
+      }
+    }
+    return`<div class="rec-item fi-an">
       <div class="rec-rank">#${r.r}</div>
       <div class="fs"><span class="n">${Math.round(r.final*100)}</span><span class="l">Score</span></div>
       <div class="rec-top">
@@ -829,13 +895,15 @@ function renderRecs(recs,id){
         <div><div class="rec-nm">${r.name}</div><span class="rec-tp ${r.type}">${TL[r.type]}</span></div>
       </div>
       <div class="rec-why">${r.why}</div>
+      ${drugDetailHtml}
       <div class="sbars">
-        ${[['biomarker','바이오마커','35%'],['nutrition','영양적합','25%'],['context','생활맥락','20%'],['preference','선호도','10%'],['adherence','지속성','10%']].map(([k,l,p])=>`
+        ${[['biomarker','바이오마커','38%'],['nutrition','영양적합','22%'],['context','생활맥락','20%'],['preference','선호도','10%'],['adherence','지속성','10%']].map(([k,l,p])=>`
           <div class="sr"><span class="sl">${l}<br><span style="font-size:9px;color:#90A4AE">${p}</span></span>
           <div class="st"><div class="sf" style="width:${(r.scores[k]||0)*100}%"></div></div>
           <span class="sn">${Math.round((r.scores[k]||0)*100)}</span></div>`).join('')}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 function renderExplain(explains,id){
   const el=document.getElementById(id);
@@ -1136,6 +1204,36 @@ function runCompare(){
 // ═══════════════════════════════════════════════════════
 function loadMockB2B(){
   document.getElementById('b2b_content').style.display='block';
+  // multiVendor 통합 이력 카드 삽입 (b2b_stats 위에)
+  const mvHtml=B2B_MOCK.multiVendor.map(emp=>{
+    const rows=emp.records.map((rec,i)=>{
+      const ldlSt=rec.LDL>140?'#C62828':rec.LDL>130?'#E65100':'#2E7D32';
+      const vitdSt=rec.VITD<15?'#C62828':rec.VITD<30?'#E65100':'#2E7D32';
+      const hbSt=rec.HB<12?'#C62828':rec.HB<13?'#E65100':'#2E7D32';
+      return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gl)">
+        <span class="pill" style="min-width:120px;text-align:center">${rec.vendor}</span>
+        <span style="font-size:11px;color:var(--gr);width:56px;flex-shrink:0">${rec.date}</span>
+        <span style="font-size:12px;font-family:'JetBrains Mono',monospace">LDL <b style="color:${ldlSt}">${rec.LDL}</b></span>
+        <span style="font-size:12px;font-family:'JetBrains Mono',monospace">VitD <b style="color:${vitdSt}">${rec.VITD}</b></span>
+        <span style="font-size:12px;font-family:'JetBrains Mono',monospace">Hb <b style="color:${hbSt}">${rec.HB}</b></span>
+        ${i>0?`<span style="font-size:10px;color:#90A4AE">←이전 업체 데이터와 정규화 통합</span>`:''}
+      </div>`;
+    }).join('');
+    return`<div style="margin-bottom:16px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px">👤 ${emp.emp}</div>
+      ${rows}
+      <div class="alert danger" style="margin-top:8px;padding:8px 12px"><span>🚨 ${emp.alert}</span></div>
+    </div>`;
+  }).join('');
+  const existingMv=document.getElementById('b2b_mv_card');
+  if(!existingMv){
+    const mvCard=document.createElement('div');
+    mvCard.id='b2b_mv_card';
+    mvCard.className='card';
+    mvCard.innerHTML=`<div class="ch"><span class="ico">🔗</span><h3>멀티 검진업체 통합 이력</h3><span class="sub">blood.ai 정규화 엔진</span></div><div class="cb">${mvHtml}</div>`;
+    const statsEl=document.getElementById('b2b_stats');
+    statsEl.parentNode.insertBefore(mvCard,statsEl);
+  }
   // stats
   const riskCnt=B2B_MOCK.depts.filter(d=>d.risk==='high').length;
   document.getElementById('b2b_stats').innerHTML=[
