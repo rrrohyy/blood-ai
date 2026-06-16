@@ -722,6 +722,9 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="pdf_marker_selector"></div>
           </div>
           <div class="chart-wrap" style="height:220px"><canvas id="pdf_trend_chart"></canvas></div>
+          <div id="pdf_trend_analyze_btn" style="display:none;margin-top:12px">
+            <button class="btn" style="width:100%" onclick="analyzeFromHistory()">✨ 최신 검진 기준 맞춤 분석하기</button>
+          </div>
         </div>
       </div>
 
@@ -2240,10 +2243,29 @@ function toggleMarker(k){
   renderPdfTrendChart();
 }
 
+function analyzeFromHistory(){
+  if(!pdfHistory.length){ alert('PDF 이력이 없습니다.'); return; }
+  // 가장 최근 이력 (날짜 기준 내림차순 정렬 후 첫 번째)
+  const latest=[...pdfHistory].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const extracted=latest.extracted||{};
+  const map={LDL:'in_LDL',HDL:'in_HDL',TG:'in_TG',GLUCOSE:'in_GL',VITD:'in_VD',HB:'in_HB',FERRITIN:'in_FE',ALT:'in_ALT',CR:'in_CR',TSH:'in_TSH',URIC:'in_URIC'};
+  let filled=0;
+  Object.entries(map).forEach(([from,to])=>{
+    const el=document.getElementById(to);
+    if(el && extracted[from]!==undefined){ el.value=extracted[from]; el.classList.add('hv'); filled++; }
+  });
+  goTab('mydata');
+  setTimeout(()=>{ if(filled>0) runMy(); },300);
+}
+
 function renderPdfTrendChart(){
   const ctx=document.getElementById('pdf_trend_chart');
   if(!ctx) return;
   if(pdfTrendChart){ pdfTrendChart.destroy(); pdfTrendChart=null; }
+
+  // 이력 있으면 분석 버튼 표시
+  const btn=document.getElementById('pdf_trend_analyze_btn');
+  if(btn) btn.style.display=pdfHistory.length?'block':'none';
 
   if(!pdfHistory.length){
     ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);
