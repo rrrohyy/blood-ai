@@ -2187,7 +2187,10 @@ function addParsedDataToHistory(){
   // 성공 메시지
   document.getElementById('pdf_preview_card').innerHTML=`<div class="ch"><span class="ico">✅</span><h3>추가 완료</h3></div>
     <div class="cb"><div class="alert safe">📊 <b>${record.date}</b> 검진 데이터가 트렌드 이력에 추가되었습니다. 우측 차트를 확인해보세요!</div>
-    <button class="btn btn-out btn-sm" style="margin-top:10px" onclick="resetPdfParser()">🔄 다른 PDF 업로드</button></div>`;
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn" style="flex:1" onclick="fillMyDataFromPdf()">✏️ 이 수치로 맞춤 분석하기</button>
+      <button class="btn btn-out" onclick="resetPdfParser()">🔄 다른 PDF 업로드</button>
+    </div></div>`;
 }
 
 // ── 이력 목록 렌더 ────────────────────────────────────
