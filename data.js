@@ -146,4 +146,37 @@ const DataStore = {
       localStorage.setItem('blood_ai_menu_v2', '1');
     }
   },
+
+  // ════════════════════════════════════════════════════════
+  //  추천 API (FastAPI 백엔드 연동)
+  //  목표 API  : POST /api/recommend
+  //  현재      : Render 배포 서버 호출 → 실패 시 null 반환 (클라이언트 룰 폴백)
+  // ════════════════════════════════════════════════════════
+
+  API_BASE: 'https://blood-ai.onrender.com',
+
+  async getRecommendations(markers, conditions = [], context = {}) {
+    try {
+      const res = await fetch(`${this.API_BASE}/api/recommend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markers, conditions, context, top_k: 5 }),
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  async getBiomarkers(userId = 'user_001') {
+    // 목표: await fetch(`/api/biomarkers/${userId}`)
+    try {
+      const res = await fetch(`${this.API_BASE}/api/biomarkers/${userId}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
 };

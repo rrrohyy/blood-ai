@@ -1178,12 +1178,34 @@ function getCtx(){return{sleep:parseFloat(document.getElementById('sl_sleep').va
 // ═══════════════════════════════════════════════════════
 //  MY DATA PAGE
 // ═══════════════════════════════════════════════════════
-function runMy(){
+async function runMy(){
   const mk=getMk();
   if(!Object.values(mk).some(v=>v!==null)){alert('혈액검사 수치를 하나 이상 입력해주세요.');return;}
   const conds=getConds(),ctx=getCtx();
   const bio=bioArea(mk);
-  const recs=recommend(mk,conds,ctx);
+
+  // API 호출 → 실패 시 클라이언트 룰 폴백
+  let recs=null;
+  let apiUsed=false;
+  const apiResult=await DataStore.getRecommendations(mk,conds,{
+    sleep:ctx.sleep,stress:ctx.str,bf:ctx.bf,lm:ctx.lm,ex:ctx.ex
+  });
+  if(apiResult&&apiResult.items&&apiResult.items.length){
+    apiUsed=true;
+    recs=apiResult.items.map((it,i)=>({
+      r:i+1, type:it.type, icon:it.icon, name:it.name,
+      final:it.score, why:it.reason,
+      scores:{
+        biomarker:it.biomarker_fit,
+        nutrition:+(it.biomarker_fit*.85).toFixed(2),
+        context:it.context_score,
+        preference:.80, adherence:.72
+      },
+      suppData:SUPPS.find(s=>s.name===it.name||it.name.includes(s.name.split(' ')[0]))
+    }));
+  } else {
+    recs=recommend(mk,conds,ctx);
+  }
   // safety flags
   const flags=[];
   if((mk.AL||0)>=120)flags.push({t:'danger',m:'ALT 위험 수준 — 영양제 추천 제한'});
@@ -1202,7 +1224,7 @@ function runMy(){
   document.getElementById('my_result').innerHTML=`
     <div class="card fi-an"><div class="ch"><span class="ico">🔬</span><h3>입력된 수치</h3></div><div class="cb"><div class="bm-grid" id="my_bm"></div>${flags.map(f=>`<div class="alert ${f.t}" style="margin-top:8px">${f.m}</div>`).join('')||'<div class="alert safe" style="margin-top:8px">✅ 위험 수치 없음</div>'}</div></div>
     <div class="card fi-an"><div class="ch"><span class="ico">🎯</span><h3>목표 달성 현황</h3></div><div class="cb" id="my_explain"></div></div>
-    <div class="card fi-an"><div class="ch"><span class="ico">✨</span><h3>맞춤 추천 결과</h3><span class="sub">Top-5</span></div><div class="cb"><div class="rec-list" id="my_rec"></div></div></div>`;
+    <div class="card fi-an"><div class="ch"><span class="ico">✨</span><h3>맞춤 추천 결과</h3><span class="sub" id="rec_source">${apiUsed?'🟢 Python API':'⚪ 로컬 룰'}</span></div><div class="cb"><div class="rec-list" id="my_rec"></div></div></div>`;
   renderBM(validMk,null,'my_bm');
   renderExplain(explains,'my_explain');
   renderRecs(recs,'my_rec');
