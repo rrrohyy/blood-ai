@@ -152,11 +152,35 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
 .menu-score{display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:12px;}
 .menu-score .ms{font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--td);}
 /* food analysis */
-.food-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.food-sample{border:2px solid var(--gl);border-radius:11px;cursor:pointer;transition:all .2s;text-align:center;padding:16px 10px;}
+.food-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.food-sample{border:2px solid var(--gl);border-radius:11px;cursor:pointer;transition:all .2s;text-align:center;padding:12px 8px;}
 .food-sample:hover,.food-sample.sel{border-color:var(--teal);background:var(--tp);}
-.food-sample .fi-ico{font-size:36px;margin-bottom:6px;}
-.food-sample .fi-nm{font-size:12px;font-weight:600;}
+.food-sample .fi-ico{font-size:30px;margin-bottom:4px;}
+.food-sample .fi-nm{font-size:11px;font-weight:600;}
+.food-badge{display:inline-block;font-size:9px;padding:1px 5px;border-radius:10px;margin-top:3px;font-weight:700;line-height:1.6;}
+.food-badge.fb-good{background:#E8F5E9;color:#2E7D32;}
+.food-badge.fb-warn{background:#FFEBEE;color:#C62828;}
+.food-cat-btn{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid var(--gl);background:white;cursor:pointer;transition:all .15s;}
+.food-cat-btn.on{background:var(--td);color:white;border-color:var(--td);}
+.food-mode-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--gl);background:white;cursor:pointer;transition:all .15s;}
+.food-mode-btn.on{background:var(--td);color:white;border-color:var(--td);}
+.course-card{border:2px solid var(--gl);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:all .2s;position:relative;}
+.course-card.best{border-color:#2E7D32;background:#F1F8E9;}
+.course-card.warn{border-color:#E65100;background:#FFF3E0;}
+.course-name{font-size:13px;font-weight:700;margin-bottom:6px;}
+.course-items{font-size:12px;color:var(--gr);line-height:1.7;}
+.course-score-badge{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.course-score-badge.best{background:#2E7D32;color:white;}
+.course-score-badge.mid{background:#F9A825;color:white;}
+.course-score-badge.low{background:#BDBDBD;color:white;}
+.course-reason{font-size:11px;margin-top:8px;padding-top:8px;border-top:1px solid var(--gl);}
+.course-edit-wrap{border:1.5px solid var(--gl);border-radius:10px;padding:12px;margin-bottom:10px;}
+.course-edit-name{width:100%;padding:5px 8px;border:1.5px solid var(--gl);border-radius:6px;font-size:12px;margin-bottom:6px;}
+.course-edit-items{width:100%;padding:5px 8px;border:1.5px solid var(--gl);border-radius:6px;font-size:12px;resize:vertical;height:54px;}
+.menu-list-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gl);font-size:12px;}
+.mk-guide-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mk-guide-col-title{font-size:11px;font-weight:700;margin-bottom:8px;}
+.mk-guide-item{font-size:12px;padding:4px 0;border-bottom:1px solid var(--gl);}
 .nutri-bar{display:flex;align-items:center;gap:10px;padding:6px 0;}
 .nutri-lbl{font-size:12px;width:90px;flex-shrink:0;}
 .nutri-track{flex:1;height:10px;background:var(--gl);border-radius:5px;overflow:hidden;}
@@ -541,21 +565,75 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
 
 <!-- ═══════════════ FOOD ═══════════════ -->
 <div class="page" id="p_food">
-  <div class="g2">
-    <div>
-      <div class="card">
-        <div class="ch"><span class="ico">📸</span><h3>식단 사진 분석</h3><span class="sub">AI 영양소 추정</span></div>
-        <div class="cb">
-          <p style="font-size:12px;color:var(--gr);margin-bottom:14px">오늘 먹은 음식을 선택하세요 (복수 선택 가능)</p>
-          <div class="food-grid" id="food_grid"></div>
-          <button class="btn btn-w" style="margin-top:14px" onclick="analyzeFoodSel()">🔬 영양소 분석하기</button>
+
+  <!-- 모드 전환 헤더 -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+    <button class="food-mode-btn on" id="fm_rec" onclick="setFoodMode('rec',this)">🍽️ 오늘의 추천</button>
+    <button class="food-mode-btn" id="fm_mgmt" onclick="setFoodMode('mgmt',this)">⚙️ 메뉴 관리</button>
+    <span style="font-size:11px;color:var(--gr);margin-left:auto">B: 메뉴 등록 → C: 혈액 수치 기반 추천</span>
+  </div>
+
+  <!-- ── C side: 오늘의 추천 ── -->
+  <div id="food_rec_panel">
+    <div class="g2">
+      <div>
+        <div class="card">
+          <div class="ch"><span class="ico">📅</span><h3>오늘의 메뉴</h3>
+            <span class="sub" id="food_today_date" style="margin-left:8px"></span>
+            <button class="btn btn-out btn-sm" style="margin-left:auto" onclick="loadMkForFood()">내 수치 연동</button>
+          </div>
+          <div class="cb" id="food_courses_wrap">
+            <div class="empty" style="padding:30px 0"><div class="ei">🍱</div><p>등록된 오늘의 메뉴가 없어요<br><b>메뉴 관리</b> 탭에서 등록해주세요</p></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="ch"><span class="ico">🎯</span><h3>추천 코스</h3><span class="sub" id="food_rec_sub" style="margin-left:8px">수치 미연동</span></div>
+          <div class="cb" id="food_rec_result">
+            <p style="font-size:12px;color:var(--gr)">「내 수치 연동」 버튼을 누르면<br>혈액 수치에 맞는 코스를 추천해드립니다.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="ch"><span class="ico">💡</span><h3>식단 가이드</h3></div>
+          <div class="cb" id="food_mk_guide">
+            <p style="font-size:12px;color:var(--gr)">수치 연동 후 피해야 할 / 챙겨야 할 항목을 보여드립니다.</p>
+          </div>
         </div>
       </div>
     </div>
-    <div id="food_result">
-      <div class="empty"><div class="ei">🍽️</div><p>음식을 선택하고<br>분석을 시작하세요</p></div>
+  </div>
+
+  <!-- ── B side: 메뉴 관리 ── -->
+  <div id="food_mgmt_panel" style="display:none">
+    <div class="g2">
+      <div>
+        <div class="card">
+          <div class="ch"><span class="ico">📋</span><h3>날짜별 메뉴 등록</h3></div>
+          <div class="cb">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+              <label style="font-size:12px;font-weight:600">날짜</label>
+              <input type="date" id="menu_date_input" style="flex:1;padding:6px 10px;border:1.5px solid var(--gl);border-radius:8px;font-size:13px">
+            </div>
+            <div id="menu_courses_edit"></div>
+            <button class="btn btn-out" style="width:100%;margin-top:10px" onclick="addMenuCourse()">+ 코스 추가</button>
+            <button class="btn" style="width:100%;margin-top:8px" onclick="saveMenuForDate()">💾 저장</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="ch"><span class="ico">📆</span><h3>등록된 메뉴 목록</h3>
+            <button class="btn btn-red btn-sm" style="margin-left:auto" onclick="if(confirm('전체 메뉴를 삭제할까요?')){localStorage.removeItem('blood_ai_menu');renderMenuList();}">전체 삭제</button>
+          </div>
+          <div class="cb" id="food_menu_list">
+            <div class="empty" style="padding:20px 0"><div class="ei">📅</div><p>등록된 메뉴가 없어요</p></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
 </div>
 
 <!-- ═══════════════ PDF PARSE ═══════════════ -->
@@ -1076,13 +1154,7 @@ function initChecker(){
   document.getElementById('supp_cks').innerHTML=`<div class="ck-grid">${SUPPS.map(s=>`
     <div class="ck" onclick="togCk(this)"><input type="checkbox" id="sc_${s.id}"><label for="sc_${s.id}">${s.icon} ${s.name}</label></div>`).join('')}</div>`;
 }
-function initFoodGrid(){
-  document.getElementById('food_grid').innerHTML=FOODS_MASTER.map(f=>`
-    <div class="food-sample" onclick="togFood(this,${f.id})">
-      <div class="fi-ico">${f.icon}</div>
-      <div class="fi-nm">${f.name}</div>
-    </div>`).join('');
-}
+function initFoodGrid(){}  // 구버전 호환용 (food 탭은 initFood로 대체)
 function initDiary(){renderDiaryList();}
 
 // ═══════════════════════════════════════════════════════
@@ -1362,54 +1434,277 @@ function loadMockB2B(){
 // ═══════════════════════════════════════════════════════
 //  FOOD PAGE
 // ═══════════════════════════════════════════════════════
-let selFoods=new Set();
-function togFood(el,id){
-  if(selFoods.has(id)){selFoods.delete(id);el.classList.remove('sel');}
-  else{selFoods.add(id);el.classList.add('sel');}
+// ═══════════════════════════════════════════════════════
+//  FOOD TAB — 메뉴 추천 시스템
+// ═══════════════════════════════════════════════════════
+let foodMk={};  // 연동된 혈액 수치
+let menuCourseCount=1;  // 관리 모드 코스 입력 카운터
+
+function getMenuData(){
+  try{return JSON.parse(localStorage.getItem('blood_ai_menu')||'{}');}catch{return {};}
 }
-function analyzeFoodSel(){
-  if(!selFoods.size){alert('음식을 하나 이상 선택해주세요.');return;}
-  const foods=FOODS_MASTER.filter(f=>selFoods.has(f.id));
-  const total={kcal:0,protein:0,fiber:0,iron:0,vitd:0,sodium:0,satFat:0};
-  foods.forEach(f=>Object.keys(total).forEach(k=>{total[k]+=(f[k]||0);}));
-  const nutriItems=[
-    {k:'kcal',lbl:'칼로리',unit:'kcal',max:600,color:'#1565C0'},
-    {k:'protein',lbl:'단백질',unit:'g',max:30,color:'#00897B'},
-    {k:'fiber',lbl:'식이섬유',unit:'g',max:10,color:'#43A047'},
-    {k:'iron',lbl:'철분',unit:'mg',max:5,color:'#C62828'},
-    {k:'vitd',lbl:'비타민D',unit:'μg',max:15,color:'#F9A825'},
-    {k:'sodium',lbl:'나트륨',unit:'mg',max:1000,color:'#E65100'},
-    {k:'satFat',lbl:'포화지방',unit:'g',max:10,color:'#AD1457'},
-  ];
-  const score=Math.round(70+(total.fiber/10)*10+(total.iron/5)*8+(total.vitd/15)*8-(total.sodium/1000)*10-(total.satFat/10)*6);
-  const advice=[];
-  if(total.vitd<5)advice.push('비타민D가 낮습니다 — 고등어구이나 연어를 추가해보세요');
-  if(total.iron<2)advice.push('철분이 부족합니다 — 시금치나물이나 렌틸콩을 추가해보세요');
-  if(total.sodium>800)advice.push('나트륨이 높습니다 — 저나트륨 식품으로 대체를 고려하세요');
-  if(total.fiber<5)advice.push('식이섬유가 부족합니다 — 현미밥이나 채소를 추가하세요');
-  document.getElementById('food_result').innerHTML=`
-    <div class="card fi-an">
-      <div class="ch"><span class="ico">🍱</span><h3>선택 식단 분석 결과</h3><span class="sub">${foods.length}개 식품</span></div>
-      <div class="cb">
-        <div style="text-align:center;margin-bottom:16px">
-          <div style="font-size:42px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--td)">${Math.min(100,Math.max(0,score))}</div>
-          <div style="font-size:13px;color:var(--gr)">건강 점수 / 100</div>
-        </div>
-        ${nutriItems.map(n=>`<div class="nutri-bar"><span class="nutri-lbl">${n.lbl}</span><div class="nutri-track"><div class="nutri-fill" style="width:${Math.min(100,total[n.k]/n.max*100)}%;background:${n.color}"></div></div><span class="nutri-val">${total[n.k].toFixed(1)}${n.unit}</span></div>`).join('')}
-        ${advice.length?`<div class="alert warn" style="margin-top:14px"><div><b>💡 개선 제안</b><br>${advice.map(a=>`• ${a}`).join('<br>')}</div></div>`:'<div class="alert safe" style="margin-top:14px">✅ 균형 잡힌 식단입니다!</div>'}
-      </div>
+function saveMenuData(d){localStorage.setItem('blood_ai_menu',JSON.stringify(d));}
+
+function todayStr(){
+  const d=new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function initFood(){
+  document.getElementById('food_today_date').textContent=todayStr();
+  document.getElementById('menu_date_input').value=todayStr();
+  // 관리 탭 초기 코스 입력란 1개
+  const wrap=document.getElementById('menu_courses_edit');
+  wrap.innerHTML=`<div class="course-edit-wrap" id="me_1">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:11px;font-weight:700;color:var(--gr)">코스 1</span>
     </div>
-    <div class="card fi-an">
-      <div class="ch"><span class="ico">🔗</span><h3>혈액 수치 연관 분석</h3></div>
-      <div class="cb">
-        <div style="font-size:12px;color:var(--gr);margin-bottom:10px">이 식단이 혈액 수치에 미치는 영향 예측</div>
-        ${[{lbl:'LDL 콜레스테롤',effect:total.satFat<3?'개선 기여':'주의 필요',good:total.satFat<3},{lbl:'비타민D',effect:total.vitd>5?'개선 기여':'기여 미흡',good:total.vitd>5},{lbl:'철분/헤모글로빈',effect:total.iron>2?'개선 기여':'기여 미흡',good:total.iron>2},{lbl:'혈당 관리',effect:total.fiber>4?'개선 기여':'주의 필요',good:total.fiber>4}].map(r=>`
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--gl)">
-            <span style="font-size:13px">${r.lbl}</span>
-            <span class="pill ${r.good?'green':'amber'}">${r.effect}</span>
-          </div>`).join('')}
-      </div>
+    <input class="course-edit-name" placeholder="코스명 (예: 1코스, A코스)">
+    <textarea class="course-edit-items" placeholder="메뉴 항목 (쉼표 구분)&#10;예: 고등어구이, 잡곡밥, 시금치나물, 된장찌개"></textarea>
+  </div>`;
+  renderTodayCourses();
+  renderMenuList();
+}
+
+function setFoodMode(mode,btn){
+  document.querySelectorAll('.food-mode-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('food_rec_panel').style.display=mode==='rec'?'':'none';
+  document.getElementById('food_mgmt_panel').style.display=mode==='mgmt'?'':'none';
+  if(mode==='mgmt') renderMenuList();
+}
+
+// ── C side: 오늘 코스 표시 ─────────────────────────────
+function renderTodayCourses(){
+  const date=todayStr();
+  const data=getMenuData();
+  const courses=data[date]||[];
+  const wrap=document.getElementById('food_courses_wrap');
+  if(!courses.length){
+    wrap.innerHTML='<div class="empty" style="padding:30px 0"><div class="ei">🍱</div><p>오늘 등록된 메뉴가 없어요<br><b>메뉴 관리</b> 탭에서 등록해주세요</p></div>';
+    return;
+  }
+  wrap.innerHTML=courses.map((c,i)=>`
+    <div class="course-card" id="cc_${i}">
+      <div class="course-name">${c.name}</div>
+      <div class="course-items">${c.items}</div>
+    </div>`).join('');
+}
+
+// ── C side: 혈액 수치 연동 후 추천 ────────────────────
+function loadMkForFood(){
+  const mk=getMk();
+  const hasAny=Object.values(mk).some(v=>v!==null);
+  if(!hasAny){alert('내 수치 분석 탭에서 혈액 수치를 먼저 입력해주세요.');return;}
+  foodMk={LDL:mk.LDL,TG:mk.TG,GL:mk.GL,VD:mk.VD,HB:mk.HB,URIC:mk.URIC};
+  document.getElementById('food_rec_sub').textContent='수치 연동됨';
+  renderTodayRec();
+  renderMkGuide();
+}
+
+function scoreMenuCourse(itemsText){
+  const t=itemsText;
+  let score=70;
+  const good=[], warn=[];
+
+  if((foodMk.LDL||0)>130){
+    if(/삼겹|제육|갈비|돼지|소고기|불고기|튀김|버터|치즈/.test(t)){score-=18;warn.push('포화지방 많음 → LDL 상승 위험');}
+    if(/고등어|연어|참치|생선|꽁치|청어/.test(t)){score+=15;good.push('오메가3 풍부 → LDL 개선');}
+    if(/잡곡|현미|보리/.test(t)){score+=10;good.push('식이섬유 → LDL 흡수 억제');}
+    if(/채소|나물|샐러드|브로콜리|시금치|콩나물/.test(t)){score+=8;good.push('채소류 → 포화지방 희석');}
+  }
+  if((foodMk.TG||0)>150){
+    if(/라면|냉면|우동|흰쌀|국수|떡/.test(t)){score-=14;warn.push('정제탄수화물 → 중성지방 상승');}
+    if(/잡곡|현미|채소|나물|두부|렌틸/.test(t)){score+=10;good.push('복합탄수화물·채소 → 중성지방 관리');}
+  }
+  if((foodMk.GL||0)>100){
+    if(/라면|냉면|우동|흰쌀|국수/.test(t)){score-=12;warn.push('고GI 탄수화물 → 혈당 급상승');}
+    if(/잡곡|현미|채소|두부|나물/.test(t)){score+=8;good.push('저GI 구성 → 혈당 안정');}
+  }
+  if((foodMk.VD||0)>0&&(foodMk.VD||0)<20){
+    if(/고등어|연어|생선|꽁치/.test(t)){score+=10;good.push('비타민D 풍부');}
+  }
+  if((foodMk.HB||0)>0&&(foodMk.HB||0)<12){
+    if(/시금치|깻잎|두부|렌틸|미역|간/.test(t)){score+=8;good.push('철분 풍부 → 헤모글로빈 관리');}
+  }
+  if((foodMk.URIC||0)>5.7){
+    if(/삼겹|등심|내장|고등어|꽁치|맥주/.test(t)){score-=15;warn.push('고퓨린 식품 → 요산 상승');}
+    if(/두부|채소|나물/.test(t)){score+=8;good.push('저퓨린 단백질 → 요산 관리');}
+  }
+  // 채소 가짓수 보너스
+  const veggieHits=(t.match(/나물|채소|샐러드|브로콜리|시금치|콩나물|깻잎|미역|무침/g)||[]).length;
+  score+=veggieHits*3;
+
+  return{score:Math.min(100,Math.max(0,score)),good,warn};
+}
+
+function renderTodayRec(){
+  const date=todayStr();
+  const data=getMenuData();
+  const courses=data[date]||[];
+  const wrap=document.getElementById('food_courses_wrap');
+  const recWrap=document.getElementById('food_rec_result');
+
+  if(!courses.length){
+    recWrap.innerHTML='<p style="font-size:12px;color:var(--gr)">오늘 등록된 메뉴가 없어요.</p>';
+    return;
+  }
+
+  const scored=courses.map((c,i)=>({...c,i,...scoreMenuCourse(c.items)}));
+  scored.sort((a,b)=>b.score-a.score);
+  const best=scored[0];
+
+  // 코스 카드에 점수 뱃지 표시
+  wrap.innerHTML=scored.map((c,rank)=>{
+    const cls=rank===0?'best':rank===scored.length-1&&scored.length>1?'warn':'';
+    const badgeCls=rank===0?'best':rank===1?'mid':'low';
+    const badgeTxt=rank===0?`🏆 추천 · ${c.score}점`:rank===1?`${c.score}점`:`${c.score}점`;
+    return `<div class="course-card ${cls}">
+      <span class="course-score-badge ${badgeCls}">${badgeTxt}</span>
+      <div class="course-name">${c.name}</div>
+      <div class="course-items">${c.items}</div>
+      ${c.good.length||c.warn.length?`<div class="course-reason">
+        ${c.good.map(g=>`<span style="color:#2E7D32;font-size:11px">✅ ${g}</span>`).join('  ')}
+        ${c.warn.map(w=>`<span style="color:#C62828;font-size:11px">⚠️ ${w}</span>`).join('  ')}
+      </div>`:''}
     </div>`;
+  }).join('');
+
+  recWrap.innerHTML=`
+    <div style="background:#F1F8E9;border:1.5px solid #2E7D32;border-radius:12px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:11px;color:#2E7D32;font-weight:700;margin-bottom:4px">오늘의 추천</div>
+      <div style="font-size:18px;font-weight:800">${best.name}</div>
+      <div style="font-size:12px;color:var(--gr);margin-top:4px">${best.items}</div>
+      ${best.good.length?`<div style="margin-top:8px">${best.good.map(g=>`<div style="font-size:12px;color:#2E7D32">✅ ${g}</div>`).join('')}</div>`:''}
+      ${best.warn.length?`<div style="margin-top:4px">${best.warn.map(w=>`<div style="font-size:12px;color:#C62828">⚠️ 이 코스도: ${w}</div>`).join('')}</div>`:''}
+    </div>
+    ${scored.length>1?`<div style="font-size:11px;color:var(--gr)">전체 ${scored.length}개 코스 중 혈액 수치 기준 점수 순위입니다.</div>`:''}`;
+}
+
+function renderMkGuide(){
+  const mk=foodMk;
+  const avoids=[], goods=[];
+  if((mk.LDL||0)>130){
+    avoids.push('🥩 삼겹살·갈비·튀김 — 포화지방 LDL 상승');
+    goods.push('🐟 고등어·연어·잡곡밥 — 오메가3·식이섬유');
+  }
+  if((mk.TG||0)>150){
+    avoids.push('🍜 라면·냉면·흰쌀밥 — 중성지방 상승');
+    goods.push('🥦 채소·나물·잡곡 — 중성지방 관리');
+  }
+  if((mk.GL||0)>100){
+    avoids.push('🍚 흰쌀밥·우동·국수 — 혈당 급상승');
+    goods.push('🫘 두부·렌틸·현미 — 혈당 안정');
+  }
+  if((mk.VD||0)>0&&(mk.VD||0)<20) goods.push('🐠 고등어·연어 — 비타민D 보충');
+  if((mk.HB||0)>0&&(mk.HB||0)<12) goods.push('🥬 시금치·깻잎·미역 — 철분 보충');
+  if((mk.URIC||0)>5.7){
+    avoids.push('🍖 붉은고기·등푸른생선 — 퓨린 → 요산 상승');
+    goods.push('🫙 두부·채소 — 저퓨린 단백질');
+  }
+  const html=avoids.length||goods.length?`
+    <div class="mk-guide-row">
+      <div>
+        <div class="mk-guide-col-title" style="color:#C62828">🚫 줄여야 할 것</div>
+        ${avoids.length?avoids.map(a=>`<div class="mk-guide-item">${a}</div>`).join(''):'<div style="font-size:12px;color:var(--gr)">제한 항목 없음</div>'}
+      </div>
+      <div>
+        <div class="mk-guide-col-title" style="color:#2E7D32">✅ 챙겨야 할 것</div>
+        ${goods.length?goods.map(g=>`<div class="mk-guide-item">${g}</div>`).join(''):'<div style="font-size:12px;color:var(--gr)">추가 권장 없음</div>'}
+      </div>
+    </div>`
+    :'<p style="font-size:12px;color:var(--gr)">수치가 모두 정상 범위입니다. 균형 잡힌 식단을 유지하세요.</p>';
+  document.getElementById('food_mk_guide').innerHTML=html;
+}
+
+// ── B side: 메뉴 관리 ──────────────────────────────────
+function addMenuCourse(){
+  menuCourseCount++;
+  const wrap=document.getElementById('menu_courses_edit');
+  const div=document.createElement('div');
+  div.className='course-edit-wrap';
+  div.id='me_'+menuCourseCount;
+  div.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:11px;font-weight:700;color:var(--gr)">코스 ${wrap.children.length+1}</span>
+      <button onclick="this.closest('.course-edit-wrap').remove()" style="border:none;background:none;cursor:pointer;color:var(--gr);font-size:14px">✕</button>
+    </div>
+    <input class="course-edit-name" placeholder="코스명 (예: 1코스, A코스)">
+    <textarea class="course-edit-items" placeholder="메뉴 항목 (쉼표 구분)&#10;예: 고등어구이, 잡곡밥, 시금치나물, 된장찌개"></textarea>`;
+  wrap.appendChild(div);
+}
+
+function saveMenuForDate(){
+  const date=document.getElementById('menu_date_input').value;
+  if(!date){alert('날짜를 선택해주세요.');return;}
+  const wraps=document.querySelectorAll('#menu_courses_edit .course-edit-wrap');
+  const courses=[];
+  wraps.forEach(w=>{
+    const name=w.querySelector('.course-edit-name').value.trim();
+    const items=w.querySelector('.course-edit-items').value.trim();
+    if(name&&items) courses.push({name,items});
+  });
+  if(!courses.length){alert('코스명과 메뉴를 입력해주세요.');return;}
+  const data=getMenuData();
+  data[date]=courses;
+  saveMenuData(data);
+  renderMenuList();
+  renderTodayCourses();
+  alert(`✅ ${date} 메뉴가 저장됐습니다 (${courses.length}개 코스)`);
+}
+
+function renderMenuList(){
+  const data=getMenuData();
+  const dates=Object.keys(data).sort().reverse();
+  const wrap=document.getElementById('food_menu_list');
+  if(!dates.length){
+    wrap.innerHTML='<div class="empty" style="padding:20px 0"><div class="ei">📅</div><p>등록된 메뉴가 없어요</p></div>';
+    return;
+  }
+  wrap.innerHTML=dates.map(d=>`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:700">${d}${d===todayStr()?' <span class="pill green">오늘</span>':''}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-out btn-sm" onclick="loadMenuToEdit('${d}')">수정</button>
+          <button class="btn btn-red btn-sm" onclick="deleteMenuDate('${d}')">삭제</button>
+        </div>
+      </div>
+      ${data[d].map(c=>`<div class="menu-list-item"><b>${c.name}</b><span style="color:var(--gr);max-width:60%;text-align:right">${c.items}</span></div>`).join('')}
+    </div>`).join('<hr style="border:none;border-top:1px solid var(--gl);margin:10px 0">');
+}
+
+function loadMenuToEdit(date){
+  const data=getMenuData();
+  const courses=data[date]||[];
+  document.getElementById('menu_date_input').value=date;
+  const wrap=document.getElementById('menu_courses_edit');
+  menuCourseCount=0;
+  wrap.innerHTML='';
+  courses.forEach(c=>{
+    menuCourseCount++;
+    const div=document.createElement('div');
+    div.className='course-edit-wrap';
+    div.id='me_'+menuCourseCount;
+    div.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:700;color:var(--gr)">코스 ${wrap.children.length+1}</span>
+        <button onclick="this.closest('.course-edit-wrap').remove()" style="border:none;background:none;cursor:pointer;color:var(--gr);font-size:14px">✕</button>
+      </div>
+      <input class="course-edit-name" value="${c.name}" placeholder="코스명">
+      <textarea class="course-edit-items" placeholder="메뉴 항목">${c.items}</textarea>`;
+    wrap.appendChild(div);
+  });
+  setFoodMode('mgmt',document.getElementById('fm_mgmt'));
+}
+
+function deleteMenuDate(date){
+  if(!confirm(`${date} 메뉴를 삭제할까요?`))return;
+  const data=getMenuData();
+  delete data[date];
+  saveMenuData(data);
+  renderMenuList();
+  renderTodayCourses();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1480,7 +1775,7 @@ function loadRealSampleCompare(){
 // ═══════════════════════════════════════════════════════
 initDemo3();
 initChecker();
-initFoodGrid();
+initFood();
 initDiary();
 
 function initDemo3(){
