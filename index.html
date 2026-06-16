@@ -2247,7 +2247,7 @@ function analyzeFromHistory(){
   if(!pdfHistory.length){ alert('PDF 이력이 없습니다.'); return; }
   // 가장 최근 이력 (날짜 기준 내림차순 정렬 후 첫 번째)
   const latest=[...pdfHistory].sort((a,b)=>b.date.localeCompare(a.date))[0];
-  const extracted=latest.extracted||{};
+  const extracted=latest.markers||latest.extracted||{};
   const map={LDL:'in_LDL',HDL:'in_HDL',TG:'in_TG',GLUCOSE:'in_GL',VITD:'in_VD',HB:'in_HB',FERRITIN:'in_FE',ALT:'in_ALT',CR:'in_CR',TSH:'in_TSH',URIC:'in_URIC'};
   let filled=0;
   Object.entries(map).forEach(([from,to])=>{
