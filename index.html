@@ -2120,13 +2120,10 @@ function renderPdfPreview(vendor, date, extracted){
     <span style="font-size:12px;color:var(--gr)">📊 추출 항목: <b>${Object.keys(extracted).length}개</b></span>
   </div>`;
 
-  // 미리보기 테이블
+  // 미리보기 카드 — 이전 "추가 완료" 상태로 덮어씌워졌을 수 있으므로 통째로 재구성
   const card=document.getElementById('pdf_preview_card');
-  document.getElementById('pdf_preview_date').textContent=date;
-  card.style.display='block';
-
   const keys=Object.keys(PDF_MARKERS);
-  let html='';
+  let rowsHtml='';
   for(const k of keys){
     const meta=PDF_MARKERS[k];
     const val=extracted[k];
@@ -2134,7 +2131,7 @@ function renderPdfPreview(vendor, date, extracted){
     const statusHtml=val!==undefined
       ? `<span class="pdf-row-status" style="background:${isWarn?'var(--rl)':'var(--grl)'};color:${isWarn?'#C62828':'#2E7D32'}">${isWarn?'⚠ 주의':'✓ 정상'}</span>`
       : `<span class="pdf-row-status" style="background:var(--gl);color:var(--gr)">미감지</span>`;
-    html+=`<div class="pdf-row">
+    rowsHtml+=`<div class="pdf-row">
       <span class="pdf-row-lbl">${meta.label}</span>
       <input class="pdf-row-input" type="number" step="0.1" id="pv_${k}" value="${val!==undefined?val:''}" placeholder="–" data-key="${k}">
       <span class="pdf-row-unit">${meta.unit}</span>
@@ -2142,7 +2139,10 @@ function renderPdfPreview(vendor, date, extracted){
       ${statusHtml}
     </div>`;
   }
-  document.getElementById('pdf_extracted_table').innerHTML=html;
+  card.innerHTML=`
+    <div class="ch"><span class="ico">🔬</span><h3>추출된 수치</h3><span class="sub" id="pdf_preview_date">${date}</span></div>
+    <div class="cb"><div id="pdf_extracted_table">${rowsHtml}</div></div>`;
+  card.style.display='block';
 }
 
 // ── 이력에 추가 ───────────────────────────────────────
