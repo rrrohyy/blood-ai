@@ -1450,10 +1450,65 @@ function todayStr(){
   return d.toISOString().slice(0,10);
 }
 
+const SAMPLE_MENU={
+  '2026-06-15':[
+    {name:'1코스',items:'들기름김페스토비빔애플면, 유부초밥, 멘치카스, 양배추샐러드, 간장무장아찌'},
+    {name:'2코스',items:'모듬쌈밥, 고등어구이, 삼색계란말이, 귀여채볶음, 매실청채소소결절이, 잡곡밥'},
+    {name:'3코스',items:'페피친st우상삼겹수프볶음밥, 우동국물, 치킨케사디아, 간장무장아찌'},
+    {name:'샐러드바',items:'그린샐러드, 요거트, 돼지바토핑, 원미밥, 포기김치'},
+  ],
+  '2026-06-16':[
+    {name:'1코스',items:'명태회비빔냉면, 살얼음육수, 먹갈비구이, 파채, 냉면김치'},
+    {name:'2코스',items:'버섯된장찌개, 철판콩나물볶음고기, 잡곡밥, 잡곡밥, 보리새우무추천, 모듬쌈, 쌈장'},
+    {name:'3코스',items:'얼큰치즈토카스나베, 쌀밥, 감자샐러드, 크래커, 치자단무지'},
+    {name:'샐러드바',items:'그린샐러드, 유자참나물파르페레샐러드, 파인애플, 원미밥, 포기김치, 갓김치'},
+  ],
+  '2026-06-17':[
+    {name:'1코스',items:'뚝배기경성함박스테이크, 쌀밥, 크림수프, 온테크리스토샌드위치, 당근라떼'},
+    {name:'2코스',items:'자반고등어한마리구이, 잡곡밥, 열큰순두부국, 계란찜, 시금치나물'},
+    {name:'3코스',items:'헬시데이 유부비빔애플면, 철판대파닭구이, 온육수, 유자무피클, 양념장'},
+    {name:'샐러드바',items:'그린샐러드, 브로콜리참깨샐러드, 단호박죽, 저속노화원미밥, 복음김치, 팥김치'},
+  ],
+  '2026-06-18':[
+    {name:'1코스',items:'에그누들새우완탕면, 계란볶음밥, 블랙하우, 짜사이무침, 호우섬밀크티'},
+    {name:'2코스',items:'브랜드콜라보 유가네닭갈비, 미니율무국수, 유가네볶음밥, 미니율무국수, 쌈무, 콩나물무침'},
+    {name:'3코스',items:'1/3/5동일, 2/4/6동일, 마너스프'},
+    {name:'샐러드바',items:'그린샐러드, 후르츠콘샐러드, 나쵸, 치즈소스, 원미밥, 포기김치, 깍두기'},
+  ],
+  '2026-06-19':[
+    {name:'1코스',items:'삼겹살본사오, 쌀국수국물, 손권, 칠리소스, 양파피클'},
+    {name:'2코스',items:'순두부살김치찜, 잡곡밥, 해물완자전, 청포묵무침, 고구마순나물'},
+    {name:'3코스',items:'바질크림새우 엔칠라다, 나쵸, 마너스프, 피자토스트, 할라피뇨'},
+    {name:'샐러드바',items:'그린샐러드, 단오쑥과자, 단오앵두화채, 원미밥, 포기김치, 석박지'},
+  ],
+  '2026-06-20':[
+    {name:'1코스',items:'제육볶음정식, 흰쌀밥, 된장찌개, 김치, 콩나물무침'},
+    {name:'2코스',items:'고등어조림, 잡곡밥, 시금치나물, 두부조림, 미역국'},
+    {name:'3코스',items:'닭가슴살샐러드, 현미밥, 브로콜리볶음, 그린샐러드'},
+  ],
+  '2026-06-23':[
+    {name:'1코스',items:'삼겹살구이, 흰쌀밥, 김치찌개, 깻잎무침, 단무지'},
+    {name:'2코스',items:'연어스테이크, 잡곡밥, 시금치된장국, 콩나물무침, 브로콜리볶음'},
+    {name:'3코스',items:'닭볶음탕, 현미밥, 열무된장국, 배추김치, 도라지무침'},
+  ],
+  '2026-06-24':[
+    {name:'1코스',items:'소불고기, 흰쌀밥, 된장찌개, 계란말이, 깍두기'},
+    {name:'2코스',items:'고등어구이, 잡곡밥, 미역국, 시금치나물, 두부조림'},
+    {name:'3코스',items:'닭가슴살덮밥, 샐러드, 유자드레싱, 단호박수프'},
+  ],
+};
+
+function seedMenuIfEmpty(){
+  const data=getMenuData();
+  if(Object.keys(data).length===0){
+    saveMenuData(SAMPLE_MENU);
+  }
+}
+
 function initFood(){
+  seedMenuIfEmpty();
   document.getElementById('food_today_date').textContent=todayStr();
   document.getElementById('menu_date_input').value=todayStr();
-  // 관리 탭 초기 코스 입력란 1개
   const wrap=document.getElementById('menu_courses_edit');
   wrap.innerHTML=`<div class="course-edit-wrap" id="me_1">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
