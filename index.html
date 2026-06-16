@@ -235,6 +235,7 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
     <div class="tab" onclick="goTab('diary')" id="t_diary">📋 복약 일지</div>
     <div class="tab" onclick="goTab('b2b')" id="t_b2b">🏢 B2B 팀 리포트</div>
     <div class="tab" onclick="goTab('food')" id="t_food">🍱 식단 분석</div>
+    <div class="tab" onclick="goTab('pdfparse')" id="t_pdfparse">📄 PDF 파싱</div>
   </div>
 </div>
 
@@ -622,6 +623,133 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
     </div>
   </div>
 </div>
+
+<!-- ═══════════════ PDF PARSE ═══════════════ -->
+<div class="page" id="p_pdfparse">
+
+  <!-- 상단 안내 배너 -->
+  <div style="background:linear-gradient(135deg,#E3F2FD,#E0F2F1);border-radius:14px;padding:20px 24px;margin-bottom:20px;border:1px solid #B2DFDB">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <span style="font-size:28px">📄</span>
+      <div><h2 style="font-size:17px;font-weight:800">건강검진 PDF 자동 파싱</h2><p style="font-size:12px;color:var(--gr);margin-top:2px">검진 결과 PDF를 업로드하면 수치를 자동 추출하여 트렌드 그래프에 추가합니다</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;font-size:12px">
+      <div style="background:white;border-radius:8px;padding:10px 12px;border:1px solid #B2DFDB">
+        <div style="font-weight:700;color:var(--td);margin-bottom:3px">✅ 하나로 의료재단</div>
+        <div style="color:var(--gr);font-size:11px">표준 레이아웃 지원</div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:10px 12px;border:1px solid #B2DFDB">
+        <div style="font-weight:700;color:var(--td);margin-bottom:3px">✅ GC 녹십자아이메드</div>
+        <div style="color:var(--gr);font-size:11px">표준 레이아웃 지원</div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:10px 12px;border:1px solid #FFCC80">
+        <div style="font-weight:700;color:#E65100;margin-bottom:3px">🔄 KMI 한국의학연구소</div>
+        <div style="color:var(--gr);font-size:11px">범용 파서 사용</div>
+      </div>
+      <div style="background:white;border-radius:8px;padding:10px 12px;border:1px solid #FFCC80">
+        <div style="font-weight:700;color:#E65100;margin-bottom:3px">🔄 기타 기관</div>
+        <div style="color:var(--gr);font-size:11px">범용 파서 사용</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- 좌: 업로드 + 파싱 결과 -->
+    <div>
+      <div class="card">
+        <div class="ch"><span class="ico">📤</span><h3>PDF 업로드</h3><span class="sub">최대 50MB · PDF만 지원</span></div>
+        <div class="cb">
+          <div class="upload-zone" id="pdf_dropzone" onclick="document.getElementById('pdf_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--teal)'" ondragleave="this.style.borderColor='#B2DFDB'" ondrop="handlePdfDrop(event)">
+            <div class="uz-ico">📋</div>
+            <p style="font-weight:600;color:var(--td);margin-bottom:4px">클릭하거나 파일을 여기에 드래그</p>
+            <p>건강검진 결과 PDF 파일을 업로드하세요</p>
+            <p style="font-size:11px;margin-top:8px;color:#90A4AE">하나로 의료재단 / GC 녹십자아이메드 / KMI 등 지원</p>
+          </div>
+          <input type="file" id="pdf_file_input" accept=".pdf" style="display:none" onchange="handlePdfFile(this.files[0])">
+
+          <!-- 파싱 진행 상태 -->
+          <div id="pdf_status" style="display:none;margin-top:14px">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--tp);border-radius:9px;border:1px solid var(--tl)">
+              <div id="pdf_spinner" style="width:20px;height:20px;border:3px solid var(--tl);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite"></div>
+              <div>
+                <div id="pdf_status_text" style="font-size:13px;font-weight:600;color:var(--td)">PDF 텍스트 추출 중...</div>
+                <div id="pdf_status_sub" style="font-size:11px;color:var(--gr)">PDF.js로 처리 중</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 업체 감지 결과 -->
+          <div id="pdf_vendor_badge" style="display:none;margin-top:10px"></div>
+        </div>
+      </div>
+
+      <!-- 파싱된 수치 미리보기 -->
+      <div class="card" id="pdf_preview_card" style="display:none">
+        <div class="ch"><span class="ico">🔬</span><h3>추출된 수치</h3><span class="sub" id="pdf_preview_date">-</span></div>
+        <div class="cb">
+          <p style="font-size:12px;color:var(--gr);margin-bottom:12px">값을 직접 수정할 수 있습니다. 비어있는 항목은 추가되지 않아요.</p>
+          <div id="pdf_extracted_table"></div>
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <button class="btn" style="flex:1" onclick="addParsedDataToHistory()">📊 내 검진 이력에 추가</button>
+            <button class="btn btn-out" onclick="resetPdfParser()">🔄 다시 업로드</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 우: 검진 이력 + 트렌드 차트 -->
+    <div>
+      <div class="card">
+        <div class="ch"><span class="ico">📈</span><h3>내 검진 이력 트렌드</h3><span class="sub" id="pdf_history_count">0건</span></div>
+        <div class="cb">
+          <div style="margin-bottom:12px">
+            <label style="font-size:12px;font-weight:600;color:var(--gr)">표시 지표 선택</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="pdf_marker_selector"></div>
+          </div>
+          <div class="chart-wrap" style="height:220px"><canvas id="pdf_trend_chart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><span class="ico">📋</span><h3>이력 목록</h3><span class="sub">LocalStorage 저장</span></div>
+        <div class="cb">
+          <div id="pdf_history_list">
+            <div class="empty"><div class="ei">📄</div><p>PDF를 업로드하면<br>여기에 이력이 쌓입니다</p></div>
+          </div>
+          <button class="btn btn-out btn-sm" style="margin-top:10px" onclick="loadRealSamplePdf()">🧪 실제 샘플 데이터 불러오기 (노윤영)</button>
+          <button class="btn btn-red btn-sm" style="margin-top:6px;margin-left:6px" onclick="clearPdfHistory()">🗑️ 이력 초기화</button>
+        </div>
+      </div>
+
+      <!-- 변화 요약 -->
+      <div class="card" id="pdf_summary_card" style="display:none">
+        <div class="ch"><span class="ico">🩺</span><h3>변화 요약</h3><span class="sub">최근 2회 비교</span></div>
+        <div class="cb" id="pdf_summary_body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+.pdf-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--gl);}
+.pdf-row:last-child{border-bottom:none;}
+.pdf-row-lbl{font-size:12px;color:var(--gr);width:130px;flex-shrink:0;}
+.pdf-row-input{border:1px solid var(--gl);border-radius:6px;padding:4px 8px;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600;width:90px;color:var(--td);outline:none;}
+.pdf-row-input:focus{border-color:var(--teal);}
+.pdf-row-unit{font-size:11px;color:var(--gr);width:50px;}
+.pdf-row-status{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;}
+.history-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--gl);border-radius:9px;margin-bottom:7px;cursor:pointer;transition:all .2s;}
+.history-item:hover{border-color:#B2DFDB;background:var(--tp);}
+.history-item.active{border-color:var(--teal);background:var(--tp);}
+.hi-vendor{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--tl);color:var(--td);}
+.hi-date{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--bk);}
+.hi-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;}
+.hi-tag-warn{font-size:10px;font-weight:600;padding:1px 6px;border-radius:5px;background:var(--rl);color:#C62828;}
+.hi-tag-ok{font-size:10px;font-weight:600;padding:1px 6px;border-radius:5px;background:var(--grl);color:#2E7D32;}
+.marker-btn{font-size:11px;font-weight:600;padding:3px 10px;border-radius:7px;border:1px solid var(--gl);background:white;cursor:pointer;transition:all .2s;font-family:inherit;}
+.marker-btn.on{background:var(--teal);color:white;border-color:var(--teal);}
+</style>
 
 <script>
 // ═══════════════════════════════════════════════════════
@@ -1435,6 +1563,442 @@ function initDemo3(){
     if(el){el.value=v;el.classList.add('hv');}
   });
 })();
+
+// ═══════════════════════════════════════════════════════
+//  PDF PARSER MODULE
+// ═══════════════════════════════════════════════════════
+
+// PDF.js 동적 로드
+(function loadPdfJs(){
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onload=()=>{ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; };
+  document.head.appendChild(s);
+})();
+
+// ── 업체별 파싱 규칙 ──────────────────────────────────
+const VENDOR_RULES = [
+  {
+    name:'하나로 의료재단',
+    color:'#00897B',
+    detect: t => t.includes('하나로 의료재단') || t.includes('hanaromf'),
+    patterns:{
+      LDL:    [/LDL[^\n]*?콜레스테롤[^\n]*?(\d+\.?\d*)\s*H?/i, /LDL-Cholesterol\*?\s+[\d.]+\s+([\d.]+)/i],
+      HDL:    [/HDL[^\n]*?콜레스테롤[^\n]*?(\d+\.?\d*)/i],
+      TG:     [/중성지방[^\n]*?(\d+\.?\d*)/i, /Triglyceride[^\n]*?(\d+\.?\d*)/i],
+      TC:     [/Cholesterol\s+([\d.]+)\s+H/i, /총콜레스테롤[^\n]*?(\d{3}\.?\d*)\s*H?/i],
+      GLUCOSE:[/Glucose[^\n]*?(\d+\.?\d*)/i, /혈당[^\n]*?(\d+\.?\d*)/i],
+      VITD:   [/25-\(OH\)Vit\.?D\s*total[:\s]*([\d.]+)/i, /비타민\s*D[^\n]*?([\d.]+)\s*ng/i],
+      TSH:    [/TSH[:\s]*([\d.]+)/i],
+      HB:     [/Hemoglobin[^\n]*?([\d.]+)/i, /혈색소[^\n]*?([\d.]+)/i],
+      FERRITIN:[/Ferritin[^\n]*?([\d.]+)/i],
+      ALT:    [/SGPT\(ALT\)[^\n]*?([\d.]+)/i, /ALT[^\n]*?([\d.]+)/i],
+      AST:    [/SGOT\(AST\)[^\n]*?([\d.]+)/i],
+      CR:     [/Creatinine[^\n]*?([\d.]+)/i, /크레아티닌[^\n]*?([\d.]+)/i],
+      EGFR:   [/e-GFR\*?[^\n]*?([\d.]+)/i],
+      URIC:   [/Uric\s*acid[^\n]*?([\d.]+)/i, /요산[^\n]*?([\d.]+)/i],
+      WBC:    [/WBC[^\n]*?([\d.]+)/i, /백혈구[^\n]*?([\d.]+)/i],
+    },
+    datePattern: /검\s*진\s*일\s*[\(:\s]*(\d{4}-\d{2}-\d{2})/,
+  },
+  {
+    name:'GC 녹십자아이메드',
+    color:'#1565C0',
+    detect: t => t.includes('녹십자아이메드') || t.includes('GC녹십자') || t.includes('녹십자 아이메드'),
+    patterns:{
+      LDL:    [/LDL\s*콜레스테롤[^\n]*?([\d.]+)/i, /LDL[^\n\d]*([\d.]+)/],
+      HDL:    [/HDL\s*콜레스테롤[^\n]*?([\d.]+)/i],
+      TG:     [/Triglyceride[^\n]*?([\d.]+)/i, /중성지방[^\n]*?([\d.]+)/i],
+      TC:     [/Total\s*cholesterol[^\n]*?([\d.]+)/i, /총콜레스테롤[^\n]*?([\d.]+)/i],
+      GLUCOSE:[/혈당\(식전\)[^\n]*?([\d.]+)/i, /혈당[^\n]*?([\d.]+)/i],
+      VITD:   [/비타민\(Vitamin\)D3[^\n]*?([\d.]+)/i, /VitaminD[^\n]*?([\d.]+)/i],
+      TSH:    [/TSH[^\n]*?([\d.]+)/i],
+      HB:     [/Hb\(혈색소\)[^\n]*?([\d.]+)/i, /Hemoglobin[^\n]*?([\d.]+)/i],
+      FERRITIN:[/Ferritin[^\n]*?([\d.]+)/i],
+      ALT:    [/ALT\(혈청GPT\)[^\n]*?([\d.]+)/i, /ALT[^\n]*?([\d.]+)/i],
+      AST:    [/AST[^\n]*?([\d.]+)/i],
+      CR:     [/Cr\(크레아티닌\)[^\n]*?([\d.]+)/i, /Creatinine[^\n]*?([\d.]+)/i],
+      EGFR:   [/GFR[^\n]*?([\d.]+)/i],
+      URIC:   [/Uric\s*acid[^\n]*?([\d.]+)/i],
+      WBC:    [/WBC[^\n]*?([\d.]+)/i],
+    },
+    datePattern: /의뢰일자[:\s]*(\d{4}-\d{2}-\d{2})/,
+  },
+];
+
+// 범용 파서 (업체 미감지 시 fallback)
+const GENERIC_RULES = {
+  LDL:     [/LDL[^\n\d]*([\d.]+)/i],
+  HDL:     [/HDL[^\n\d]*([\d.]+)/i],
+  TG:      [/triglyceride[^\n\d]*([\d.]+)/i, /중성지방[^\n\d]*([\d.]+)/i],
+  TC:      [/total\s*cholesterol[^\n\d]*([\d.]+)/i],
+  GLUCOSE: [/glucose[^\n\d]*([\d.]+)/i, /혈당[^\n\d]*([\d.]+)/i],
+  VITD:    [/vitamin\s*d[^\n\d]*([\d.]+)/i, /비타민\s*d[^\n\d]*([\d.]+)/i],
+  TSH:     [/tsh[^\n\d]*([\d.]+)/i],
+  HB:      [/hemoglobin[^\n\d]*([\d.]+)/i, /헤모글로빈[^\n\d]*([\d.]+)/i],
+  FERRITIN:[/ferritin[^\n\d]*([\d.]+)/i],
+  ALT:     [/alt[^\n\d]*([\d.]+)/i],
+  AST:     [/ast[^\n\d]*([\d.]+)/i],
+  CR:      [/creatinine[^\n\d]*([\d.]+)/i],
+  EGFR:    [/egfr[^\n\d]*([\d.]+)/i, /gfr[^\n\d]*([\d.]+)/i],
+  URIC:    [/uric\s*acid[^\n\d]*([\d.]+)/i],
+  WBC:     [/wbc[^\n\d]*([\d.]+)/i],
+};
+
+// 지표 메타 (표시용)
+const PDF_MARKERS = {
+  LDL:    {label:'LDL 콜레스테롤', unit:'mg/dL', ref:'<130', warn:v=>v>130},
+  HDL:    {label:'HDL 콜레스테롤', unit:'mg/dL', ref:'>60',  warn:v=>v<40},
+  TG:     {label:'중성지방',        unit:'mg/dL', ref:'<150', warn:v=>v>150},
+  TC:     {label:'총콜레스테롤',    unit:'mg/dL', ref:'<200', warn:v=>v>200},
+  GLUCOSE:{label:'공복혈당',        unit:'mg/dL', ref:'<100', warn:v=>v>100},
+  VITD:   {label:'비타민D',         unit:'ng/mL', ref:'>20',  warn:v=>v<20},
+  TSH:    {label:'TSH 갑상선',      unit:'μIU/mL',ref:'0.4-4.2',warn:v=>v>4.2||v<0.4},
+  HB:     {label:'헤모글로빈',      unit:'g/dL',  ref:'>12',  warn:v=>v<12},
+  FERRITIN:{label:'페리틴',         unit:'ng/mL', ref:'>13',  warn:v=>v<13},
+  ALT:    {label:'ALT 간수치',      unit:'IU/L',  ref:'<40',  warn:v=>v>40},
+  AST:    {label:'AST',             unit:'IU/L',  ref:'<40',  warn:v=>v>40},
+  CR:     {label:'크레아티닌',      unit:'mg/dL', ref:'<1.0', warn:v=>v>1.0},
+  EGFR:   {label:'e-GFR',          unit:'mL/min',ref:'>60',  warn:v=>v<60},
+  URIC:   {label:'요산(여성기준)', unit:'mg/dL', ref:'<5.7', warn:v=>v>5.7},
+  WBC:    {label:'백혈구',          unit:'k/μL',  ref:'4-10', warn:v=>v<4||v>10},
+};
+
+// ── 상태 ──────────────────────────────────────────────
+let pdfHistory = JSON.parse(localStorage.getItem('pdf_history')||'[]');
+let pdfParsedData = null;
+let pdfTrendChart = null;
+let pdfActiveMarkers = ['LDL','HDL','VITD','GLUCOSE'];
+
+// ── 드래그&드롭 ───────────────────────────────────────
+function handlePdfDrop(e){
+  e.preventDefault();
+  document.getElementById('pdf_dropzone').style.borderColor='#B2DFDB';
+  const f=e.dataTransfer.files[0];
+  if(f && f.type==='application/pdf') handlePdfFile(f);
+  else alert('PDF 파일만 업로드 가능합니다.');
+}
+
+// ── 파일 처리 메인 ────────────────────────────────────
+async function handlePdfFile(file){
+  if(!file) return;
+  if(typeof pdfjsLib==='undefined'){ alert('PDF.js 로드 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+
+  const status=document.getElementById('pdf_status');
+  const statusText=document.getElementById('pdf_status_text');
+  const statusSub=document.getElementById('pdf_status_sub');
+  status.style.display='block';
+  document.getElementById('pdf_preview_card').style.display='none';
+  document.getElementById('pdf_vendor_badge').style.display='none';
+
+  try {
+    // 1단계: PDF 텍스트 추출
+    statusText.textContent='PDF 텍스트 추출 중...';
+    statusSub.textContent=file.name;
+    const arrayBuffer=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+    let fullText='';
+    for(let i=1;i<=pdf.numPages;i++){
+      statusText.textContent=`페이지 파싱 중 (${i}/${pdf.numPages})...`;
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      fullText+=content.items.map(it=>it.str).join(' ')+'\n';
+    }
+
+    // 2단계: 업체 감지
+    statusText.textContent='검진기관 감지 중...';
+    let vendor=null;
+    for(const rule of VENDOR_RULES){
+      if(rule.detect(fullText)){ vendor=rule; break; }
+    }
+
+    // 3단계: 수치 파싱
+    statusText.textContent='수치 추출 중...';
+    const patterns=vendor ? vendor.patterns : GENERIC_RULES;
+    const extracted={};
+    for(const [key,regexArr] of Object.entries(patterns)){
+      for(const re of regexArr){
+        const m=fullText.match(re);
+        if(m && m[1]){
+          const v=parseFloat(m[1]);
+          if(!isNaN(v) && v>0){ extracted[key]=v; break; }
+        }
+      }
+    }
+
+    // 4단계: 날짜 추출
+    let date='날짜 미확인';
+    if(vendor && vendor.datePattern){
+      const dm=fullText.match(vendor.datePattern);
+      if(dm) date=dm[1];
+    }
+    if(date==='날짜 미확인'){
+      const dm=fullText.match(/(\d{4}[-./]\d{2}[-./]\d{2})/);
+      if(dm) date=dm[1].replace(/[./]/g,'-');
+    }
+
+    // 완료
+    pdfParsedData={vendor:vendor?vendor.name:'알 수 없음',date,extracted,fileName:file.name};
+    status.style.display='none';
+    renderPdfPreview(vendor, date, extracted);
+
+  } catch(e){
+    status.style.display='none';
+    alert('PDF 파싱 중 오류가 발생했습니다: '+e.message);
+    console.error(e);
+  }
+}
+
+// ── 파싱 결과 미리보기 렌더 ───────────────────────────
+function renderPdfPreview(vendor, date, extracted){
+  // 업체 배지
+  const vbadge=document.getElementById('pdf_vendor_badge');
+  vbadge.style.display='block';
+  const col=vendor?vendor.color:'#546E7A';
+  const nm=vendor?vendor.name:'업체 미감지 (범용 파서 사용)';
+  vbadge.innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#F8F9FA;border-radius:8px;border:1px solid #E0E0E0">
+    <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:${col};color:white">${nm}</span>
+    <span style="font-size:12px;color:var(--gr)">📅 검진일: <b>${date}</b></span>
+    <span style="font-size:12px;color:var(--gr)">📊 추출 항목: <b>${Object.keys(extracted).length}개</b></span>
+  </div>`;
+
+  // 미리보기 테이블
+  const card=document.getElementById('pdf_preview_card');
+  document.getElementById('pdf_preview_date').textContent=date;
+  card.style.display='block';
+
+  const keys=Object.keys(PDF_MARKERS);
+  let html='';
+  for(const k of keys){
+    const meta=PDF_MARKERS[k];
+    const val=extracted[k];
+    const isWarn=val!==undefined && meta.warn(val);
+    const statusHtml=val!==undefined
+      ? `<span class="pdf-row-status" style="background:${isWarn?'var(--rl)':'var(--grl)'};color:${isWarn?'#C62828':'#2E7D32'}">${isWarn?'⚠ 주의':'✓ 정상'}</span>`
+      : `<span class="pdf-row-status" style="background:var(--gl);color:var(--gr)">미감지</span>`;
+    html+=`<div class="pdf-row">
+      <span class="pdf-row-lbl">${meta.label}</span>
+      <input class="pdf-row-input" type="number" step="0.1" id="pv_${k}" value="${val!==undefined?val:''}" placeholder="–" data-key="${k}">
+      <span class="pdf-row-unit">${meta.unit}</span>
+      <span style="font-size:10px;color:#90A4AE;width:50px">${meta.ref}</span>
+      ${statusHtml}
+    </div>`;
+  }
+  document.getElementById('pdf_extracted_table').innerHTML=html;
+}
+
+// ── 이력에 추가 ───────────────────────────────────────
+function addParsedDataToHistory(){
+  if(!pdfParsedData){ alert('먼저 PDF를 업로드해주세요.'); return; }
+
+  // 입력값 다시 수집 (사용자가 수정했을 수 있음)
+  const final={};
+  for(const k of Object.keys(PDF_MARKERS)){
+    const el=document.getElementById('pv_'+k);
+    if(el && el.value!=='') final[k]=parseFloat(el.value);
+  }
+
+  const record={
+    id:Date.now(),
+    vendor:pdfParsedData.vendor,
+    date:pdfParsedData.date,
+    fileName:pdfParsedData.fileName,
+    markers:final
+  };
+
+  // 같은 날짜 중복 체크
+  const dup=pdfHistory.find(r=>r.date===record.date);
+  if(dup && !confirm(`${record.date} 날짜의 데이터가 이미 있습니다. 덮어쓸까요?`)) return;
+  if(dup) pdfHistory=pdfHistory.filter(r=>r.date!==record.date);
+
+  pdfHistory.push(record);
+  pdfHistory.sort((a,b)=>a.date.localeCompare(b.date));
+  savePdfHistory();
+  renderPdfHistory();
+  renderPdfTrendChart();
+  renderPdfSummary();
+
+  // 성공 메시지
+  document.getElementById('pdf_preview_card').innerHTML=`<div class="ch"><span class="ico">✅</span><h3>추가 완료</h3></div>
+    <div class="cb"><div class="alert safe">📊 <b>${record.date}</b> 검진 데이터가 트렌드 이력에 추가되었습니다. 우측 차트를 확인해보세요!</div>
+    <button class="btn btn-out btn-sm" style="margin-top:10px" onclick="resetPdfParser()">🔄 다른 PDF 업로드</button></div>`;
+}
+
+// ── 이력 목록 렌더 ────────────────────────────────────
+function renderPdfHistory(){
+  const el=document.getElementById('pdf_history_list');
+  document.getElementById('pdf_history_count').textContent=pdfHistory.length+'건';
+
+  if(!pdfHistory.length){
+    el.innerHTML='<div class="empty"><div class="ei">📄</div><p>PDF를 업로드하면<br>여기에 이력이 쌓입니다</p></div>';
+    return;
+  }
+
+  el.innerHTML=pdfHistory.slice().reverse().map(r=>{
+    const warns=Object.entries(r.markers)
+      .filter(([k,v])=>PDF_MARKERS[k]&&PDF_MARKERS[k].warn(v))
+      .map(([k])=>k);
+    const warnTags=warns.slice(0,3).map(k=>`<span class="hi-tag-warn">${PDF_MARKERS[k].label.split(' ')[0]}↑</span>`).join('');
+    const okCount=Object.keys(r.markers).length-warns.length;
+    return `<div class="history-item">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span class="hi-vendor">${r.vendor}</span>
+          <span class="hi-date">${r.date}</span>
+        </div>
+        <div class="hi-tags">${warnTags}${okCount>0?`<span class="hi-tag-ok">정상 ${okCount}항목</span>`:''}</div>
+      </div>
+      <button onclick="deletePdfRecord(${r.id})" style="background:none;border:none;cursor:pointer;font-size:16px;color:#B0BEC5;padding:4px" title="삭제">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+// ── 트렌드 차트 ───────────────────────────────────────
+const MARKER_COLORS=['#00897B','#1565C0','#E65100','#AD1457','#6A1B9A','#2E7D32','#C62828','#37474F'];
+
+function renderMarkerSelector(){
+  const el=document.getElementById('pdf_marker_selector');
+  if(!el) return;
+  el.innerHTML=Object.entries(PDF_MARKERS).map(([k,m])=>
+    `<button class="marker-btn ${pdfActiveMarkers.includes(k)?'on':''}" onclick="toggleMarker('${k}')">${m.label.split(' ')[0]}</button>`
+  ).join('');
+}
+
+function toggleMarker(k){
+  if(pdfActiveMarkers.includes(k)) pdfActiveMarkers=pdfActiveMarkers.filter(x=>x!==k);
+  else pdfActiveMarkers.push(k);
+  renderMarkerSelector();
+  renderPdfTrendChart();
+}
+
+function renderPdfTrendChart(){
+  const ctx=document.getElementById('pdf_trend_chart');
+  if(!ctx) return;
+  if(pdfTrendChart){ pdfTrendChart.destroy(); pdfTrendChart=null; }
+
+  if(!pdfHistory.length){
+    ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);
+    return;
+  }
+
+  const labels=pdfHistory.map(r=>r.date);
+  const datasets=pdfActiveMarkers.map((k,i)=>({
+    label:PDF_MARKERS[k]?PDF_MARKERS[k].label:k,
+    data:pdfHistory.map(r=>r.markers[k]??null),
+    borderColor:MARKER_COLORS[i%MARKER_COLORS.length],
+    backgroundColor:MARKER_COLORS[i%MARKER_COLORS.length]+'22',
+    tension:.3,
+    pointRadius:5,
+    pointHoverRadius:7,
+    spanGaps:true,
+  }));
+
+  pdfTrendChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},
+      scales:{
+        x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}}
+      }
+    }
+  });
+}
+
+// ── 변화 요약 ─────────────────────────────────────────
+function renderPdfSummary(){
+  if(pdfHistory.length<2){
+    document.getElementById('pdf_summary_card').style.display='none';
+    return;
+  }
+  const card=document.getElementById('pdf_summary_card');
+  card.style.display='block';
+  const prev=pdfHistory[pdfHistory.length-2];
+  const curr=pdfHistory[pdfHistory.length-1];
+  const rows=Object.keys(PDF_MARKERS).filter(k=>prev.markers[k]!==undefined&&curr.markers[k]!==undefined).map(k=>{
+    const meta=PDF_MARKERS[k];
+    const a=prev.markers[k], b=curr.markers[k];
+    const diff=+(b-a).toFixed(1);
+    const isHigh=meta.ref.startsWith('>');
+    const better=isHigh?(diff>0):(diff<0);
+    const icon=diff===0?'→':better?'↗ 개선':'↘ 악화';
+    const color=diff===0?'var(--gr)':better?'#2E7D32':'#C62828';
+    return `<div class="compare-row">
+      <span class="compare-lbl">${meta.label}</span>
+      <span class="compare-before">${a}</span>
+      <span class="compare-arrow">→</span>
+      <span class="compare-after ${better?'better':'worse'}">${b}</span>
+      <span style="font-size:11px;font-weight:600;color:${color};margin-left:4px">${icon} (${diff>0?'+':''}${diff})</span>
+    </div>`;
+  }).join('');
+  document.getElementById('pdf_summary_body').innerHTML=`
+    <p style="font-size:12px;color:var(--gr);margin-bottom:10px"><b>${prev.date}</b> → <b>${curr.date}</b></p>
+    ${rows||'<p style="color:var(--gr);font-size:12px">공통 항목이 없습니다.</p>'}`;
+}
+
+// ── 유틸리티 ─────────────────────────────────────────
+function savePdfHistory(){ localStorage.setItem('pdf_history',JSON.stringify(pdfHistory)); }
+
+function deletePdfRecord(id){
+  pdfHistory=pdfHistory.filter(r=>r.id!==id);
+  savePdfHistory(); renderPdfHistory(); renderPdfTrendChart(); renderPdfSummary();
+}
+
+function clearPdfHistory(){
+  if(!confirm('이력을 모두 삭제할까요?')) return;
+  pdfHistory=[]; savePdfHistory(); renderPdfHistory(); renderPdfTrendChart(); renderPdfSummary();
+}
+
+function resetPdfParser(){
+  pdfParsedData=null;
+  document.getElementById('pdf_preview_card').style.display='none';
+  document.getElementById('pdf_vendor_badge').style.display='none';
+  document.getElementById('pdf_status').style.display='none';
+  document.getElementById('pdf_file_input').value='';
+}
+
+// ── 실제 샘플 불러오기 (노윤영 4개년 데이터) ──────────
+function loadRealSamplePdf(){
+  if(!confirm('노윤영 실제 검진 데이터 4개 시점을 이력에 추가할까요?\n(기존 이력은 유지됩니다)')) return;
+  const samples=[
+    {id:1001,vendor:'GC 녹십자아이메드',date:'2022-12-30',fileName:'01_20221230-213-0211.pdf',
+     markers:{LDL:119,HDL:80,TG:111,TC:221,GLUCOSE:89,VITD:11.1,TSH:2.34,HB:12.2,FERRITIN:65,ALT:19,AST:23,CR:0.6,EGFR:118,URIC:5.4,WBC:3.73}},
+    {id:1002,vendor:'하나로 의료재단',date:'2021-11-12',fileName:'하나로_2021.pdf',
+     markers:{LDL:128,HDL:79,TG:93,TC:226,GLUCOSE:82,VITD:null,HB:13.2,ALT:15,AST:21,CR:0.70,EGFR:100,URIC:6.2,WBC:4.02}},
+    {id:1003,vendor:'하나로 의료재단',date:'2024-04-22',fileName:'하나로_2024.pdf',
+     markers:{LDL:116,HDL:78,TG:113,TC:217,GLUCOSE:93,VITD:null,HB:12.7,ALT:18,AST:23,CR:0.80,EGFR:99,URIC:6.1,WBC:4.16}},
+    {id:1004,vendor:'하나로 의료재단',date:'2025-05-09',fileName:'노윤영(F)_010271793.pdf',
+     markers:{LDL:153,HDL:79,TG:124,TC:257,GLUCOSE:98,VITD:9.3,TSH:4.54,HB:13.2,ALT:14,AST:21,CR:0.81,EGFR:97,URIC:6.8,WBC:5.07}},
+  ];
+  samples.forEach(s=>{
+    if(!pdfHistory.find(r=>r.date===s.date)){
+      // null 값 제거
+      s.markers=Object.fromEntries(Object.entries(s.markers).filter(([,v])=>v!==null));
+      pdfHistory.push(s);
+    }
+  });
+  pdfHistory.sort((a,b)=>a.date.localeCompare(b.date));
+  savePdfHistory(); renderPdfHistory(); renderPdfTrendChart(); renderPdfSummary();
+  alert('✅ 4개 시점 데이터가 추가되었습니다!');
+}
+
+// ── 탭 진입 시 초기화 ─────────────────────────────────
+function initPdfTab(){
+  renderMarkerSelector();
+  renderPdfHistory();
+  renderPdfTrendChart();
+  renderPdfSummary();
+}
+
+// goTab 훅
+const _origGoTab=goTab;
+// goTab은 이미 정의되어 있으므로 pdfparse 탭 진입 시 initPdfTab 호출
+document.getElementById('t_pdfparse').addEventListener('click',()=>{
+  setTimeout(initPdfTab, 50);
+});
 </script>
 </body>
 </html>
