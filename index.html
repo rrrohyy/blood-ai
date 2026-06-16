@@ -1276,6 +1276,13 @@ async function runMy(){
   renderExplain(explains,'my_explain');
   renderRecs(recs,'my_rec');
   document.getElementById('my_result').scrollIntoView({behavior:'smooth',block:'start'});
+  // 다른 탭 입력칸에 수치 자동 동기화
+  const syncMap={ck_LDL:'in_LDL',ck_HDL:'in_HDL',ck_VD:'in_VD',ck_HB:'in_HB',ck_GL:'in_GL',ck_CR:'in_CR'};
+  Object.entries(syncMap).forEach(([dst,src])=>{
+    const sv=document.getElementById(src)?.value;
+    const de=document.getElementById(dst);
+    if(de&&sv)de.value=sv;
+  });
 }
 
 // ═══════════════════════════════════════════════════════
