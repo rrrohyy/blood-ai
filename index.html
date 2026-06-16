@@ -323,7 +323,7 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
         </div>
       </div>
       <div class="card">
-        <div class="ch"><span class="ico">📈</span><h3>3회 검사 추이</h3><span class="sub">2021 → 2024 → 2025</span></div>
+        <div class="ch"><span class="ico">📈</span><h3>4회 검사 추이</h3><span class="sub">2021 → 2022 → 2024 → 2025</span></div>
         <div class="cb"><div class="chart-wrap"><canvas id="d3_chart"></canvas></div></div>
       </div>
       <div class="card">
@@ -338,8 +338,10 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
           <div class="g2">
             <div>
               <div style="font-size:12px;color:var(--gr);margin-bottom:4px">LDL 콜레스테롤 추이</div>
-              <div style="display:flex;align-items:center;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                 <span style="font-size:13px;color:var(--gr)">128</span>
+                <span style="color:var(--gr)">→</span>
+                <span style="font-size:13px;color:var(--gr)">119</span>
                 <span style="color:var(--gr)">→</span>
                 <span style="font-size:13px;color:var(--gr)">116</span>
                 <span style="color:var(--gr)">→</span>
@@ -350,8 +352,10 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
             </div>
             <div>
               <div style="font-size:12px;color:var(--gr);margin-bottom:4px">총콜레스테롤 추이</div>
-              <div style="display:flex;align-items:center;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                 <span style="font-size:13px;color:var(--gr)">226</span>
+                <span style="color:var(--gr)">→</span>
+                <span style="font-size:13px;color:var(--gr)">221</span>
                 <span style="color:var(--gr)">→</span>
                 <span style="font-size:13px;color:var(--gr)">217</span>
                 <span style="color:var(--gr)">→</span>
@@ -411,6 +415,8 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
             <div class="fg"><label class="fl">페리틴 <span>≥12 ng/mL</span></label><input class="fi" type="number" id="in_FE" placeholder="35" oninput="markI(this)"></div>
             <div class="fg"><label class="fl">ALT <span>≤40 IU/L</span></label><input class="fi" type="number" id="in_ALT" placeholder="29" oninput="markI(this)"></div>
             <div class="fg"><label class="fl">크레아티닌 <span>mg/dL</span></label><input class="fi" type="number" id="in_CR" placeholder="0.9" step="0.1" oninput="markI(this)"></div>
+            <div class="fg"><label class="fl">TSH <span>0.4~4.2 μIU/mL</span></label><input class="fi" type="number" id="in_TSH" placeholder="2.3" step="0.01" oninput="markI(this)"></div>
+            <div class="fg"><label class="fl">요산 <span>≤5.7 mg/dL(여)</span></label><input class="fi" type="number" id="in_URIC" placeholder="5.4" step="0.1" oninput="markI(this)"></div>
           </div>
         </div>
       </div>
@@ -689,8 +695,9 @@ header{background:linear-gradient(135deg,#00695C,#004D40);color:white;}
         <div class="cb">
           <p style="font-size:12px;color:var(--gr);margin-bottom:12px">값을 직접 수정할 수 있습니다. 비어있는 항목은 추가되지 않아요.</p>
           <div id="pdf_extracted_table"></div>
-          <div style="margin-top:14px;display:flex;gap:8px">
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn" style="flex:1" onclick="addParsedDataToHistory()">📊 내 검진 이력에 추가</button>
+            <button class="btn btn-out" style="flex:1" onclick="fillMyDataFromPdf()">✏️ 내 수치 분석에 바로 입력</button>
             <button class="btn btn-out" onclick="resetPdfParser()">🔄 다시 업로드</button>
           </div>
         </div>
@@ -765,27 +772,29 @@ const BM_META = {
   FERRITIN:{name:'페리틴',unit:'ng/mL',goal:30,dir:'high',st:v=>v<12?'watch':'normal'},
   ALT:{name:'ALT 간수치',unit:'IU/L',goal:30,dir:'low',st:v=>v>120?'caution':v>40?'watch':'normal'},
   CR:{name:'크레아티닌',unit:'mg/dL',goal:1.0,dir:'low',st:v=>v>1.5?'caution':v>1.2?'watch':'normal'},
+  TSH:{name:'TSH 갑상선',unit:'μIU/mL',goal:2.0,dir:'low',st:v=>v>4.2?'caution':v>2.5?'watch':'normal'},
+  URIC:{name:'요산',unit:'mg/dL',goal:5.0,dir:'low',st:v=>v>6.0?'caution':v>5.7?'watch':'normal'},
 };
 const ST_LBL={normal:'정상',watch:'경계',caution:'주의'};
 const W={biomarker:.38,nutrition:.22,context:.20,preference:.10,adherence:.10};
 
 const SUPPS=[
   {id:1,name:'비타민D3 2000IU',icon:'☀️',area:'vitd',risk:[],ing:{vitD:2000},evidence:'A',reason:'비타민D 부족 시 보충을 권장합니다.',
-   dose:'1일 1회 2000IU',timing:'식사와 함께 (지용성)',expect:'8~12주 후 혈중 수치 10~15ng/mL 상승',contraindications:['고칼슘혈증 주의'],interactions:['티아지드계 이뇨제 병용 시 고칼슘혈증 위험'],category:'비타민'},
+   dose:'1일 1회 2000IU',timing:'아침 식사 후 1캡슐 (지용성, 취침 전 복용 시 수면 방해 가능)',expect:'8~12주 후 혈중 수치 10~15ng/mL 상승',contraindications:['고칼슘혈증 주의'],interactions:['티아지드계 이뇨제 병용 시 고칼슘혈증 위험'],category:'비타민'},
   {id:2,name:'오메가3 (EPA/DHA)',icon:'🐠',area:'lipid',risk:['항응고제'],ing:{omega3:1000},evidence:'A',reason:'LDL 관리를 위해 오메가3 보충을 권장합니다.',
-   dose:'1일 2회 1000mg',timing:'식후',expect:'TG 20~30% 감소, LDL 소폭 감소 (8~12주)',contraindications:['수술 전 2주 중단 권고'],interactions:['항응고제(와파린) 병용 시 출혈 위험'],category:'지질관리'},
+   dose:'1일 2회 1000mg',timing:'아침·저녁 식후 각 1캡슐 (총 2g/일)',expect:'TG 20~30% 감소, LDL 소폭 감소 (8~12주)',contraindications:['수술 전 2주 중단 권고'],interactions:['항응고제(와파린) 병용 시 출혈 위험'],category:'지질관리'},
   {id:3,name:'마그네슘 300mg',icon:'💊',area:'glucose',risk:['신장질환'],ing:{magnesium:300},evidence:'B',reason:'혈당 조절 보조 목적으로 마그네슘을 권장합니다.',
-   dose:'1일 1회 300mg',timing:'취침 전',expect:'혈당 민감성 개선, 수면 질 향상',contraindications:['신장질환 시 축적 위험'],interactions:['항생제 흡수 방해 가능'],category:'혈당관리'},
+   dose:'1일 1회 300mg',timing:'취침 30분 전, 물 한 컵과 함께',expect:'혈당 민감성 개선, 수면 질 향상',contraindications:['신장질환 시 축적 위험'],interactions:['항생제 흡수 방해 가능'],category:'혈당관리'},
   {id:4,name:'철분 18mg',icon:'🔴',area:'iron',risk:[],ing:{iron:18},evidence:'A',reason:'헤모글로빈/페리틴 저하 시 철분 보충을 권장합니다.',
-   dose:'1일 1~2회 18mg',timing:'공복 (비타민C와 함께)',expect:'헤모글로빈 회복 4~8주',contraindications:['변비·소화불량 가능'],interactions:['칼슘·제산제와 동시 복용 시 흡수 감소'],category:'빈혈'},
+   dose:'1일 1~2회 18mg',timing:'식사 1시간 전 또는 식후 2시간 / 비타민C와 함께 / 커피·우유와 2시간 간격',expect:'헤모글로빈 회복 4~8주',contraindications:['변비·소화불량 가능'],interactions:['칼슘·제산제와 동시 복용 시 흡수 감소'],category:'빈혈'},
   {id:5,name:'비타민C 500mg',icon:'🍋',area:'iron',risk:[],ing:{vitC:500},evidence:'A',reason:'철분 흡수율 향상을 위해 비타민C를 권장합니다.',
-   dose:'1일 1~2회 500mg',timing:'식후',expect:'철분 흡수율 2~3배 향상',contraindications:['신장결석 병력 시 주의'],interactions:['철분제와 함께 복용 시 흡수 증가 (권장)'],category:'빈혈'},
+   dose:'1일 1~2회 500mg',timing:'식후 (철분과 동시 복용 권장)',expect:'철분 흡수율 2~3배 향상',contraindications:['신장결석 병력 시 주의'],interactions:['철분제와 함께 복용 시 흡수 증가 (권장)'],category:'빈혈'},
   {id:6,name:'엽산 400μg',icon:'💚',area:'iron',risk:[],ing:{folate:400},evidence:'A',reason:'철분 흡수 보조 및 빈혈 관리에 엽산을 권장합니다.',
-   dose:'1일 1회 400μg',timing:'아무 때나',expect:'적혈구 생성 보조',contraindications:[],interactions:['메토트렉세이트 효과 감소'],category:'빈혈'},
+   dose:'1일 1회 400μg',timing:'식사와 함께 (규칙적으로, 공복 복용 가능)',expect:'적혈구 생성 보조',contraindications:[],interactions:['메토트렉세이트 효과 감소'],category:'빈혈'},
   {id:7,name:'코엔자임Q10 100mg',icon:'⚡',area:'lipid',risk:['항응고제'],ing:{coq10:100},evidence:'B',reason:'LDL 관리와 에너지 생산에 CoQ10을 권장합니다.',
-   dose:'1일 1~2회 100mg',timing:'식후 (지용성)',expect:'스타틴 복용 시 근육통 완화, 심장 기능 보조',contraindications:[],interactions:['항응고제 효과 감소 가능'],category:'지질관리'},
+   dose:'1일 1~2회 100mg',timing:'아침 식사 후 1캡슐 (지용성, 저녁 복용 시 불면 가능)',expect:'스타틴 복용 시 근육통 완화, 심장 기능 보조',contraindications:[],interactions:['항응고제 효과 감소 가능'],category:'지질관리'},
   {id:8,name:'아연 10mg',icon:'🔷',area:'immune',risk:[],ing:{zinc:10},evidence:'B',reason:'면역 기능 강화를 위한 아연 보충을 권장합니다.',
-   dose:'1일 1회 10mg',timing:'식후',expect:'면역 기능 강화, 상처 회복 촉진',contraindications:['고용량 시 구리 흡수 방해'],interactions:['항생제 흡수 방해'],category:'면역'},
+   dose:'1일 1회 10mg',timing:'점심 식사 후 1정 (공복 복용 시 구역감)',expect:'면역 기능 강화, 상처 회복 촉진',contraindications:['고용량 시 구리 흡수 방해'],interactions:['항생제 흡수 방해'],category:'면역'},
 ];
 
 // 중복 성분 한도 (1일 최대 안전량)
@@ -890,7 +899,8 @@ function needScore(code,val){
   const m={LDL:v=>Math.min(Math.max(0,(v-100)/100),1),HDL:v=>Math.min(Math.max(0,(50-v)/30),1),
     TG:v=>Math.min(Math.max(0,(v-100)/150),1),GLUCOSE:v=>Math.min(Math.max(0,(v-90)/60),1),
     VITD:v=>Math.min(Math.max(0,(30-v)/30),1),HB:v=>Math.min(Math.max(0,(13-v)/6),1),
-    FERRITIN:v=>Math.min(Math.max(0,(15-v)/15),1),ALT:v=>Math.min(Math.max(0,(v-30)/90),1),CR:v=>Math.min(Math.max(0,(v-1.0)/1.0),1)};
+    FERRITIN:v=>Math.min(Math.max(0,(15-v)/15),1),ALT:v=>Math.min(Math.max(0,(v-30)/90),1),CR:v=>Math.min(Math.max(0,(v-1.0)/1.0),1),
+    TSH:v=>Math.min(Math.max(0,(v-2.5)/3.0),1),URIC:v=>Math.min(Math.max(0,(v-5.0)/3.0),1)};
   return m[code]?Math.max(0,m[code](val)):0;
 }
 function bioArea(mk){
@@ -950,7 +960,7 @@ function recommend(mk,conds,ctx){
     // 임상 우선순위 배수 적용
     let clinicalPriority=1.0;
     if(s.area==='lipid'&&s.name.includes('오메가3')&&(mk.LDL||mk.LDL===0)&&mk.LDL>140)clinicalPriority=1.4;
-    if(s.area==='vitd'&&(mk.VITD||mk.VD||99)<15)clinicalPriority=1.5;
+    if(s.area==='vitd'){const vd=mk.VITD||mk.VD||99;if(vd<10)clinicalPriority=2.0;else if(vd<15)clinicalPriority=1.5;}
     if(s.area==='iron'&&s.name.includes('철분')){
       if((mk.HB||99)<12)clinicalPriority=Math.max(clinicalPriority,1.5);
       if((mk.FERRITIN||mk.FE||99)<10)clinicalPriority=Math.max(clinicalPriority,1.4);
@@ -977,6 +987,15 @@ function recommend(mk,conds,ctx){
   if(ctxN.ex===0){
     const sc={biomarker:Math.max(bio.lipid,bio.glucose)*.7,nutrition:.3,context:ctxSc('routine',ctxN),preference:.75,adherence:.58};
     cands.push({type:'routine',icon:'🏃',name:'유산소 운동 루틴',why:'운동 없음 감지 — 주 3~5회 30분 이상 유산소 운동(빠르게 걷기, 자전거 등)을 권장합니다.',scores:sc,final:fs(sc)});
+  }
+  if((mk.URIC||0)>5.7){
+    const uricNeed=Math.min(1,(mk.URIC-5.7)/2);
+    const sc={biomarker:uricNeed,nutrition:.5,context:ctxSc('routine',ctxN),preference:.70,adherence:.75};
+    cands.push({type:'routine',icon:'💧',name:'수분 섭취 & 저퓨린 식단',why:`요산(${mk.URIC}mg/dL) — 여성 기준(5.7) 초과. 하루 2L 이상 수분 섭취, 붉은 고기·내장류·맥주 제한을 권장합니다.`,scores:sc,final:fs(sc)});
+  }
+  if((mk.TSH||0)>4.2){
+    const sc={biomarker:Math.min(1,(mk.TSH-2.5)/3),nutrition:.3,context:.5,preference:.70,adherence:.70};
+    cands.push({type:'routine',icon:'🦋',name:'갑상선 기능 모니터링',why:`TSH(${mk.TSH}μIU/mL) — 정상 상한(4.2) 초과. 갑상선 기능저하 초기 의심. 3개월 후 재검 및 내분비내과 상담을 권장합니다.`,scores:sc,final:fs(sc)});
   }
   cands.sort((a,b)=>b.final-a.final);
   return mmr(cands,5).map((r,i)=>({...r,r:i+1}));
@@ -1076,7 +1095,7 @@ function renderProds(indices,id){
 // ═══════════════════════════════════════════════════════
 //  TAB CONTROL
 // ═══════════════════════════════════════════════════════
-const TABS=['demo1','demo2','demo3','mydata','checker','diary','b2b','food'];
+const TABS=['demo1','demo2','demo3','mydata','checker','diary','b2b','food','pdfparse'];
 function goTab(id){
   TABS.forEach(t=>{
     document.getElementById('t_'+t).classList.toggle('active',t===id);
@@ -1089,21 +1108,16 @@ function goTab(id){
 // ═══════════════════════════════════════════════════════
 const D3={
   tests:[
-    {date:'2021-11',markers:{LDL:128,HDL:79,TG:93,ALT:15,HB:13.2,CR:0.70}},
-    {date:'2024-04',markers:{LDL:116,HDL:78,TG:113,ALT:18,HB:12.7,CR:0.80}},
-    {date:'2025-05',markers:{LDL:153,HDL:79,TG:124,ALT:14,HB:13.2,CR:0.81}},
-  ],
-  recs:[
-    {r:1,type:'supplement',icon:'🐠',name:'오메가3 (EPA/DHA) 1000mg',why:'LDL 153mg/dL — 목표(130) 대비 23mg/dL 초과. 오메가3 EPA/DHA가 LDL 및 중성지방 동시 관리에 근거 A등급 효능.',scores:{biomarker:.88,nutrition:.72,context:.68,preference:.82,adherence:.75},final:.80},
-    {r:2,type:'food',icon:'🐟',name:'고등어구이',why:'오메가3(EPA/DHA) 천연 공급원. 주 2~3회 섭취 시 LDL 개선 효과가 임상적으로 검증됨.',scores:{biomarker:.85,nutrition:.92,context:.70,preference:.78,adherence:.84},final:.83},
-    {r:3,type:'food',icon:'🥜',name:'아몬드 한줌',why:'불포화지방산·식이섬유 풍부. LDL 콜레스테롤 저하 및 심장 보호 효과. 매일 30g 섭취 권장.',scores:{biomarker:.78,nutrition:.85,context:.65,preference:.72,adherence:.82},final:.78},
-    {r:4,type:'routine',icon:'🏃',name:'유산소 운동 루틴',why:'HDL이 79로 높은 것은 긍정적. LDL 추가 개선을 위해 주 4회 이상 30분 유산소(빠르게 걷기, 수영) 권장.',scores:{biomarker:.82,nutrition:.5,context:.72,preference:.78,adherence:.62},final:.72},
-    {r:5,type:'food',icon:'🥑',name:'아보카도',why:'식이섬유(5.1g)·불포화지방산 풍부. 포화지방 대체 효과로 LDL 관리에 도움.',scores:{biomarker:.75,nutrition:.82,context:.65,preference:.70,adherence:.78},final:.75},
+    {date:'2021-11',markers:{LDL:128,HDL:79,TG:93,ALT:15,HB:13.2,CR:0.70,URIC:6.2}},
+    {date:'2022-12',markers:{LDL:119,HDL:80,TG:111,ALT:19,HB:12.2,CR:0.60,GLUCOSE:89,VITD:11.1,TSH:2.34,URIC:5.4}},
+    {date:'2024-04',markers:{LDL:116,HDL:78,TG:113,ALT:18,HB:12.7,CR:0.80,GLUCOSE:93,URIC:6.1}},
+    {date:'2025-05',markers:{LDL:153,HDL:79,TG:124,ALT:14,HB:13.2,CR:0.81,GLUCOSE:98,VITD:9.3,TSH:4.54,URIC:6.8}},
   ],
   explains:[
-    {code:'LDL',label:'LDL 콜레스테롤',vals:[128,116,153],goal:130,dir:'low',unit:'mg/dL'},
-    {code:'TG',label:'중성지방',vals:[93,113,124],goal:150,dir:'low',unit:'mg/dL'},
-    {code:'HB',label:'헤모글로빈',vals:[13.2,12.7,13.2],goal:14,dir:'high',unit:'g/dL'},
+    {code:'LDL',label:'LDL 콜레스테롤',vals:[128,119,116,153],goal:130,dir:'low',unit:'mg/dL'},
+    {code:'TG',label:'중성지방',vals:[93,111,113,124],goal:150,dir:'low',unit:'mg/dL'},
+    {code:'HB',label:'헤모글로빈',vals:[13.2,12.2,12.7,13.2],goal:14,dir:'high',unit:'g/dL'},
+    {code:'VITD',label:'비타민D',vals:[11.1,9.3],goal:40,dir:'high',unit:'ng/mL'},
   ],
 };
 
@@ -1153,7 +1167,7 @@ function ctxV(k,v){
   document.getElementById('cv_'+k).textContent=f[k];
 }
 function getMk(){
-  return{LDL:nv('in_LDL'),HDL:nv('in_HDL'),TG:nv('in_TG'),GL:nv('in_GL'),VD:nv('in_VD'),HB:nv('in_HB'),FE:nv('in_FE'),ALT:nv('in_ALT'),CR:nv('in_CR')};
+  return{LDL:nv('in_LDL'),HDL:nv('in_HDL'),TG:nv('in_TG'),GL:nv('in_GL'),VD:nv('in_VD'),HB:nv('in_HB'),FE:nv('in_FE'),ALT:nv('in_ALT'),CR:nv('in_CR'),TSH:nv('in_TSH'),URIC:nv('in_URIC')};
 }
 function nv(id){const v=document.getElementById(id)?.value;return v&&v!==''?parseFloat(v):null;}
 function getConds(){return[['c_hp','고혈압'],['c_dm','당뇨'],['c_ac','항응고제'],['c_kd','신장질환'],['c_ld','간질환'],['c_pg','임신·수유']].filter(([id])=>document.getElementById(id)?.checked).map(([,n])=>n);}
@@ -1176,6 +1190,8 @@ function runMy(){
   if((mk.VD||0)>0&&(mk.VD||99)<=5)flags.push({t:'danger',m:'비타민D 심각 결핍 — 의료진 상담 필수'});
   if((mk.HB||99)<7)flags.push({t:'danger',m:'헤모글로빈 7 미만 — 즉시 의료진 상담'});
   if(conds.includes('항응고제'))flags.push({t:'warn',m:'항응고제 복용 중 — 오메가3·CoQ10 추천 제한 적용'});
+  if((mk.TSH||0)>4.2)flags.push({t:'warn',m:`TSH ${mk.TSH}μIU/mL — 갑상선 기능저하 초기 의심. 3개월 후 재검 권고`});
+  if((mk.URIC||0)>6.0)flags.push({t:'warn',m:`요산 ${mk.URIC}mg/dL — 여성 기준 초과. 수분 섭취 늘리고 저퓨린 식단 권장`});
   const validMk=Object.fromEntries(Object.entries(mk).filter(([,v])=>v!==null));
   const explains=[];
   if(mk.LDL!==null)explains.push({code:'LDL',label:'LDL 콜레스테롤',vals:[mk.LDL],goal:130,dir:'low',unit:'mg/dL'});
@@ -1474,7 +1490,7 @@ function analyzeFoodSel(){
 const REAL={LDL:153,HDL:79,TG:124,HB:13.2,ALT:14,CR:0.81};
 
 function loadRealSampleMy(){
-  const map={in_LDL:153,in_HDL:79,in_TG:124,in_HB:13.2,in_ALT:14,in_CR:0.81};
+  const map={in_LDL:153,in_HDL:79,in_TG:124,in_GL:98,in_VD:9.3,in_HB:13.2,in_ALT:14,in_CR:0.81,in_TSH:4.54,in_URIC:6.8};
   Object.entries(map).forEach(([id,v])=>{const el=document.getElementById(id);if(el){el.value=v;el.classList.add('hv');}});
   // 슬라이더도 실제 생활 맥락 추정값으로
   document.getElementById('sl_sleep').value=6.5; ctxV('sleep','6.5');
@@ -1542,8 +1558,10 @@ initFoodGrid();
 initDiary();
 
 function initDemo3(){
-  renderBM(D3.tests[2].markers, D3.tests[1].markers, 'd3_bm');
-  renderRecs(D3.recs,'d3_rec');
+  renderBM(D3.tests[3].markers, D3.tests[2].markers, 'd3_bm');
+  const d3mk=D3.tests[3].markers;
+  const d3recs=recommend(d3mk,[],{sleep:6.5,str:3,bf:3,lm:2,ex:15});
+  renderRecs(d3recs,'d3_rec');
   renderExplain(D3.explains,'d3_explain');
   const labels=D3.tests.map(t=>t.date);
   const colors=['#C62828','#2E7D32','#E65100','#1565C0'];
@@ -1557,7 +1575,7 @@ function initDemo3(){
 
 // 내 수치 분석 폼 기본값 채우기 (실제 검진 수치)
 (function prefillMyForm(){
-  const defaults={in_LDL:153,in_HDL:79,in_TG:124,in_HB:13.2,in_ALT:14,in_CR:0.81};
+  const defaults={in_LDL:153,in_HDL:79,in_TG:124,in_GL:98,in_VD:9.3,in_HB:13.2,in_ALT:14,in_CR:0.81,in_TSH:4.54,in_URIC:6.8};
   Object.entries(defaults).forEach(([id,v])=>{
     const el=document.getElementById(id);
     if(el){el.value=v;el.classList.add('hv');}
@@ -1983,6 +2001,24 @@ function loadRealSamplePdf(){
   pdfHistory.sort((a,b)=>a.date.localeCompare(b.date));
   savePdfHistory(); renderPdfHistory(); renderPdfTrendChart(); renderPdfSummary();
   alert('✅ 4개 시점 데이터가 추가되었습니다!');
+}
+
+// ── PDF → 내 수치 분석 자동 연동 ──────────────────────
+function fillMyDataFromPdf(){
+  if(!pdfParsedData){ alert('먼저 PDF를 업로드해주세요.'); return; }
+  const final={};
+  for(const k of Object.keys(PDF_MARKERS)){
+    const el=document.getElementById('pv_'+k);
+    if(el && el.value!=='') final[k]=parseFloat(el.value);
+  }
+  const map={LDL:'in_LDL',HDL:'in_HDL',TG:'in_TG',GLUCOSE:'in_GL',VITD:'in_VD',HB:'in_HB',FERRITIN:'in_FE',ALT:'in_ALT',CR:'in_CR',TSH:'in_TSH',URIC:'in_URIC'};
+  let filled=0;
+  Object.entries(map).forEach(([from,to])=>{
+    const el=document.getElementById(to);
+    if(el && final[from]!==undefined){ el.value=final[from]; el.classList.add('hv'); filled++; }
+  });
+  goTab('mydata');
+  setTimeout(()=>{ alert(`✅ ${filled}개 수치가 내 수치 분석 탭에 입력되었습니다.\n분석 시작 버튼을 눌러주세요.`); }, 200);
 }
 
 // ── 탭 진입 시 초기화 ─────────────────────────────────
